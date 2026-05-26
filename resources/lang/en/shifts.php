@@ -1,0 +1,25 @@
+<?php
+
+return [
+    'title'           => 'Employee Schedule',
+    'module_name'     => 'Employees',
+    'employee'        => 'Employee',
+    'department'      => 'Department',
+    'position'        => 'Position',
+    'shift'           => 'Shift',
+    'shift_type'      => 'Shift Type',
+    'morning'         => 'Morning',
+    'afternoon'       => 'Afternoon',
+    'evening'         => 'Evening',
+    'night'           => 'Night',
+    'leave_request'   => 'Leave Request',
+    'leave_approved'  => 'Leave Approved',
+    'leave_rejected'  => 'Leave Rejected',
+    'leave_pending'   => 'Pending Approval',
+    'worked_hours'    => 'Worked Hours',
+    'overtime'        => 'Overtime',
+    'validate_leave'  => 'Approve Leave',
+    'reject_leave'    => 'Reject Leave',
+    'export_pdf'      => 'Export Schedule PDF',
+    'export_excel'    => 'Export for Payroll',
+];

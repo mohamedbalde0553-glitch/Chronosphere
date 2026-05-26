@@ -1,0 +1,25 @@
+<?php
+
+return [
+    'title'           => 'Planning des employés',
+    'module_name'     => 'Employés',
+    'employee'        => 'Employé',
+    'department'      => 'Département',
+    'position'        => 'Poste',
+    'shift'           => 'Shift',
+    'shift_type'      => 'Type de shift',
+    'morning'         => 'Matin',
+    'afternoon'       => 'Après-midi',
+    'evening'         => 'Soir',
+    'night'           => 'Nuit',
+    'leave_request'   => 'Demande de congé',
+    'leave_approved'  => 'Congé approuvé',
+    'leave_rejected'  => 'Congé refusé',
+    'leave_pending'   => 'En attente de validation',
+    'worked_hours'    => 'Heures travaillées',
+    'overtime'        => 'Heures supplémentaires',
+    'validate_leave'  => 'Valider le congé',
+    'reject_leave'    => 'Refuser le congé',
+    'export_pdf'      => 'Exporter le planning en PDF',
+    'export_excel'    => 'Exporter pour la paie',
+];

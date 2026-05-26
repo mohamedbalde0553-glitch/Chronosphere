@@ -1,0 +1,27 @@
+<?php
+
+return [
+    'app_name'            => 'ChronoSphere',
+    'dashboard'           => 'Tableau de bord',
+    'profile'             => 'Mon profil',
+    'settings'            => 'Paramètres',
+    'logout'              => 'Déconnexion',
+    'notifications'       => 'Notifications',
+    'search'              => 'Rechercher...',
+    'search_placeholder'  => 'Rechercher dans tous les modules (Ctrl+K)',
+    'favorites'           => 'Mes favoris',
+    'module_access_denied'=> 'Accès non autorisé à ce module.',
+    'switch_context'      => 'Changer de contexte',
+    'active_module'       => 'Module actif',
+    'no_notifications'    => 'Aucune notification',
+    'mark_all_read'       => 'Tout marquer comme lu',
+    'save'                => 'Enregistrer',
+    'cancel'              => 'Annuler',
+    'delete'              => 'Supprimer',
+    'edit'                => 'Modifier',
+    'create'              => 'Créer',
+    'back'                => 'Retour',
+    'confirm_delete'      => 'Êtes-vous sûr de vouloir supprimer cet élément ?',
+    'action_success'      => 'Opération effectuée avec succès.',
+    'action_error'        => 'Une erreur est survenue.',
+];

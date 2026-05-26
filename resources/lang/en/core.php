@@ -1,0 +1,27 @@
+<?php
+
+return [
+    'app_name'            => 'ChronoSphere',
+    'dashboard'           => 'Dashboard',
+    'profile'             => 'My Profile',
+    'settings'            => 'Settings',
+    'logout'              => 'Logout',
+    'notifications'       => 'Notifications',
+    'search'              => 'Search...',
+    'search_placeholder'  => 'Search across all modules (Ctrl+K)',
+    'favorites'           => 'My Favorites',
+    'module_access_denied'=> 'Access to this module is not allowed.',
+    'switch_context'      => 'Switch Context',
+    'active_module'       => 'Active Module',
+    'no_notifications'    => 'No notifications',
+    'mark_all_read'       => 'Mark all as read',
+    'save'                => 'Save',
+    'cancel'              => 'Cancel',
+    'delete'              => 'Delete',
+    'edit'                => 'Edit',
+    'create'              => 'Create',
+    'back'                => 'Back',
+    'confirm_delete'      => 'Are you sure you want to delete this item?',
+    'action_success'      => 'Operation completed successfully.',
+    'action_error'        => 'An error occurred.',
+];
