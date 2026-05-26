@@ -1,29 +1,25 @@
 <x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Profile') }}
-        </h2>
-    </x-slot>
+    <x-slot name="title">Mon profil</x-slot>
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
-            <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
-                <div class="max-w-xl">
-                    @include('profile.partials.update-profile-information-form')
-                </div>
-            </div>
+    <div class="max-w-3xl space-y-6">
 
-            <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
-                <div class="max-w-xl">
-                    @include('profile.partials.update-password-form')
-                </div>
-            </div>
-
-            <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
-                <div class="max-w-xl">
-                    @include('profile.partials.delete-user-form')
-                </div>
-            </div>
+        {{-- Profile info --}}
+        <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
+            <h3 class="text-base font-semibold text-gray-900 mb-5">Informations personnelles</h3>
+            @include('profile.partials.update-profile-information-form')
         </div>
+
+        {{-- Password --}}
+        <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
+            <h3 class="text-base font-semibold text-gray-900 mb-5">Changer le mot de passe</h3>
+            @include('profile.partials.update-password-form')
+        </div>
+
+        {{-- Delete --}}
+        <div class="bg-white rounded-2xl border border-red-100 shadow-sm p-6">
+            <h3 class="text-base font-semibold text-red-700 mb-5">Zone de danger</h3>
+            @include('profile.partials.delete-user-form')
+        </div>
+
     </div>
 </x-app-layout>
