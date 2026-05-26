@@ -6,6 +6,32 @@
 @source '../**/*.js';
 
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+    /* Typographie */
+    --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
+
+    /* Module 1 — Universitaire : bleu académique + or */
+    --color-uni:        #1E40AF;
+    --color-uni-accent: #F59E0B;
+    --color-uni-light:  #DBEAFE;
+
+    /* Module 2 — Employés : vert corporate + gris */
+    --color-hr:         #047857;
+    --color-hr-accent:  #6B7280;
+    --color-hr-light:   #D1FAE5;
+
+    /* Module 3 — Agenda : violet + rose pastel */
+    --color-cal:        #7C3AED;
+    --color-cal-accent: #F9A8D4;
+    --color-cal-light:  #EDE9FE;
+
+    /* Module 4 — Réservation : orange + ambre */
+    --color-book:        #EA580C;
+    --color-book-accent: #F59E0B;
+    --color-book-light:  #FED7AA;
+
+    /* Module 5 — Projet/Gantt : indigo + cyan */
+    --color-proj:        #4F46E5;
+    --color-proj-accent: #06B6D4;
+    --color-proj-light:  #E0E7FF;
 }
