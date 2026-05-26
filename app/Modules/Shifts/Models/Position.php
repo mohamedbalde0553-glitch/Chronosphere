@@ -12,7 +12,7 @@ class Position extends Model
 
     protected $table = 'hr_positions';
 
-    protected $fillable = ['name', 'description', 'level'];
+    protected $fillable = ['title', 'description', 'base_hourly_rate'];
 
     public function employees(): HasMany
     {

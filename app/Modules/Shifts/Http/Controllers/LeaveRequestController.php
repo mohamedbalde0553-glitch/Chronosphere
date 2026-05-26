@@ -5,6 +5,7 @@ namespace App\Modules\Shifts\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Modules\Shifts\Models\Employee;
 use App\Modules\Shifts\Models\LeaveRequest;
+use App\Modules\Shifts\Models\Shift;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -61,7 +62,15 @@ class LeaveRequestController extends Controller
             'validated_by' => auth()->id(),
             'validated_at' => now(),
         ]);
-        return response()->json(['ok' => true]);
+
+        // Annuler les shifts qui chevauchent la période de congé
+        $cancelled = Shift::where('employee_id', $leave->employee_id)
+            ->where('status', '!=', 'cancelled')
+            ->where('start_at', '<', $leave->end_date->addDay()->toDateTimeString())
+            ->where('end_at', '>',  $leave->start_date->toDateTimeString())
+            ->update(['status' => 'cancelled']);
+
+        return response()->json(['ok' => true, 'shifts_cancelled' => $cancelled]);
     }
 
     public function reject(Request $request, LeaveRequest $leave): JsonResponse

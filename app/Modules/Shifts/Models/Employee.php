@@ -18,7 +18,7 @@ class Employee extends Model
 
     protected $fillable = [
         'user_id', 'department_id', 'position_id', 'employee_code',
-        'hire_date', 'contract_type', 'status',
+        'hire_date', 'contract_type', 'status', 'photo_url',
         'weekly_hours_minutes', 'max_daily_minutes', 'min_rest_minutes',
     ];
 

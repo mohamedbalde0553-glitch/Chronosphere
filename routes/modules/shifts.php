@@ -6,6 +6,8 @@ use App\Modules\Shifts\Http\Controllers\LeaveRequestController;
 use App\Modules\Shifts\Http\Controllers\ShiftController;
 use App\Modules\Shifts\Http\Controllers\ShiftTypeController;
 use App\Modules\Shifts\Http\Controllers\ShiftsController;
+use App\Modules\Shifts\Http\Controllers\SkillController;
+use App\Modules\Shifts\Http\Controllers\StatsController;
 use Illuminate\Support\Facades\Route;
 
 // Dashboard
@@ -45,3 +47,16 @@ Route::put('/leaves/{leave}', [LeaveRequestController::class, 'update'])->name('
 Route::delete('/leaves/{leave}', [LeaveRequestController::class, 'destroy'])->name('leaves.destroy');
 Route::post('/leaves/{leave}/approve', [LeaveRequestController::class, 'approve'])->name('leaves.approve');
 Route::post('/leaves/{leave}/reject', [LeaveRequestController::class, 'reject'])->name('leaves.reject');
+
+// Compétences
+Route::get('/skills', [SkillController::class, 'index'])->name('skills.index');
+Route::post('/skills', [SkillController::class, 'store'])->name('skills.store');
+Route::put('/skills/{skill}', [SkillController::class, 'update'])->name('skills.update');
+Route::delete('/skills/{skill}', [SkillController::class, 'destroy'])->name('skills.destroy');
+
+// Stats RH (API JSON pour Chart.js)
+Route::get('/stats', [StatsController::class, 'index'])->name('stats');
+
+// Exports
+Route::get('/export/excel', [StatsController::class, 'exportExcel'])->name('export.excel');
+Route::get('/export/pdf-data', [StatsController::class, 'pdfData'])->name('export.pdf-data');

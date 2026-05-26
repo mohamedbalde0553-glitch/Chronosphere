@@ -3,6 +3,7 @@
 namespace App\Modules\Shifts\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Modules\Shifts\Models\Employee;
 use App\Modules\Shifts\Models\Shift;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -19,19 +20,30 @@ class ShiftController extends Controller
             'notes'         => 'nullable|string',
         ]);
 
+        $warnings = [];
+
         $conflicts = $this->detectConflicts(null, $data['employee_id'], $data['start_at'], $data['end_at']);
         if ($conflicts && !$request->boolean('force')) {
             return response()->json(['conflicts' => $conflicts], 409);
         }
 
+        $workedMin  = (int) round((strtotime($data['end_at']) - strtotime($data['start_at'])) / 60);
+        $overtimeMin = $this->computeOvertime($data['employee_id'], $data['start_at'], $workedMin, null);
+
+        $weekWarning = $this->checkWeeklyLimit($data['employee_id'], $data['start_at'], $workedMin, null);
+        if ($weekWarning) {
+            $warnings[] = $weekWarning;
+        }
+
         $shift = Shift::create($data + [
-            'worked_minutes' => (int) round((strtotime($data['end_at']) - strtotime($data['start_at'])) / 60),
-            'status'         => 'planned',
+            'worked_minutes'   => $workedMin,
+            'overtime_minutes' => $overtimeMin,
+            'status'           => 'planned',
         ]);
 
         $shift->load(['employee.user', 'shiftType']);
 
-        return response()->json([
+        $response = [
             'id'              => $shift->id,
             'title'           => $shift->employee->user->name
                                  . ($shift->shiftType ? ' — ' . $shift->shiftType->name : ''),
@@ -39,7 +51,13 @@ class ShiftController extends Controller
             'end'             => $shift->end_at->toIso8601String(),
             'backgroundColor' => $shift->shiftType?->color ?? '#059669',
             'borderColor'     => $shift->shiftType?->color ?? '#059669',
-        ], 201);
+        ];
+
+        if ($warnings) {
+            $response['warnings'] = $warnings;
+        }
+
+        return response()->json($response, 201);
     }
 
     public function update(Request $request, Shift $shift): JsonResponse
@@ -59,9 +77,9 @@ class ShiftController extends Controller
             if ($conflicts && !$request->boolean('force')) {
                 return response()->json(['conflicts' => $conflicts], 409);
             }
-            $data['worked_minutes'] = (int) round(
-                (strtotime($data['end_at']) - strtotime($data['start_at'])) / 60
-            );
+            $workedMin  = (int) round((strtotime($data['end_at']) - strtotime($data['start_at'])) / 60);
+            $data['worked_minutes']   = $workedMin;
+            $data['overtime_minutes'] = $this->computeOvertime($empId, $data['start_at'], $workedMin, $shift->id);
         }
 
         $shift->update($data);
@@ -85,10 +103,63 @@ class ShiftController extends Controller
             $query->where('id', '!=', $excludeId);
         }
 
-        if ($query->exists()) {
-            return [['type' => 'overlap', 'message' => "L'employé a déjà un shift sur ce créneau."]];
+        return $query->exists()
+            ? [['type' => 'overlap', 'message' => "L'employé a déjà un shift sur ce créneau."]]
+            : [];
+    }
+
+    private function computeOvertime(int $employeeId, string $startAt, int $newMinutes, ?int $excludeId): int
+    {
+        $employee = Employee::find($employeeId);
+        if (!$employee) return 0;
+
+        $dayStart = date('Y-m-d 00:00:00', strtotime($startAt));
+        $dayEnd   = date('Y-m-d 23:59:59', strtotime($startAt));
+
+        $query = Shift::where('employee_id', $employeeId)
+            ->where('status', '!=', 'cancelled')
+            ->whereBetween('start_at', [$dayStart, $dayEnd]);
+
+        if ($excludeId) $query->where('id', '!=', $excludeId);
+
+        $existingDayMin  = (int) $query->sum('worked_minutes');
+        $totalDayMin     = $existingDayMin + $newMinutes;
+        $maxDaily        = $employee->max_daily_minutes ?: 600;
+
+        return max(0, $totalDayMin - $maxDaily);
+    }
+
+    private function checkWeeklyLimit(int $employeeId, string $startAt, int $newMinutes, ?int $excludeId): ?array
+    {
+        $employee = Employee::find($employeeId);
+        if (!$employee) return null;
+
+        $weekStart = date('Y-m-d 00:00:00', strtotime('monday this week', strtotime($startAt)));
+        $weekEnd   = date('Y-m-d 23:59:59', strtotime('sunday this week', strtotime($startAt)));
+
+        $query = Shift::where('employee_id', $employeeId)
+            ->where('status', '!=', 'cancelled')
+            ->where('start_at', '>=', $weekStart)
+            ->where('start_at', '<=', $weekEnd);
+
+        if ($excludeId) $query->where('id', '!=', $excludeId);
+
+        $weekTotal  = (int) $query->sum('worked_minutes') + $newMinutes;
+        $weekLimit  = $employee->weekly_hours_minutes ?: 2400;
+
+        if ($weekTotal > $weekLimit) {
+            $over = $weekTotal - $weekLimit;
+            return [
+                'type'    => 'weekly_limit',
+                'message' => sprintf(
+                    "Plafond hebdo dépassé de %dh%02d (total: %dh%02d / limite: %dh%02d).",
+                    intdiv($over, 60), $over % 60,
+                    intdiv($weekTotal, 60), $weekTotal % 60,
+                    intdiv($weekLimit, 60), $weekLimit % 60
+                ),
+            ];
         }
 
-        return [];
+        return null;
     }
 }

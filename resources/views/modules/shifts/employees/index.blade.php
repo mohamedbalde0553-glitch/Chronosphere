@@ -1,175 +1,271 @@
 <x-app-layout>
     <x-slot name="title">Employés</x-slot>
 
-    <div x-data="crudTable({
+    <div x-data="employeesApp({
         storeUrl:  '{{ route('shifts.employees.store') }}',
         updateBase:'{{ url('shifts/employees/__ID__') }}',
         deleteBase:'{{ url('shifts/employees/__ID__') }}',
-        emptyForm: () => ({ user_id:'', department_id:'', position_id:'', employee_code:'', hire_date:'', contract_type:'cdi', weekly_hours_minutes:2400, status:'active' }),
     })">
 
-        <div class="flex items-center justify-between mb-5">
+        {{-- Header --}}
+        <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
             <div>
-                <h2 class="text-lg font-bold text-gray-900">Employés</h2>
-                <p class="text-sm text-gray-500">{{ $employees->total() }} employé(s)</p>
+                <h2 class="text-xl font-bold text-gray-900">Employés</h2>
+                <p class="text-sm text-gray-500 mt-0.5">{{ $employees->total() }} employé(s) enregistré(s)</p>
             </div>
             <div class="flex gap-2">
-                <a href="{{ route('shifts.index') }}" class="px-3 py-2 text-sm text-gray-600 border border-gray-300 bg-white rounded-lg hover:bg-gray-50">← Retour</a>
-                <button @click="openCreate()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold rounded-lg">+ Ajouter</button>
+                <a href="{{ route('shifts.index') }}"
+                   class="px-3 py-2 text-sm text-gray-600 border border-gray-300 bg-white rounded-lg hover:bg-gray-50 transition-colors">
+                    ← Retour
+                </a>
+                <button @click="openCreate()"
+                        class="flex items-center gap-1.5 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold rounded-lg transition-colors">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+                    </svg>
+                    Ajouter
+                </button>
             </div>
         </div>
 
-        <div class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
-            <table class="w-full text-sm">
-                <thead class="bg-gray-50 border-b border-gray-200">
-                    <tr>
-                        <th class="text-left px-4 py-3 font-semibold text-gray-600">Nom</th>
-                        <th class="text-left px-4 py-3 font-semibold text-gray-600">Code</th>
-                        <th class="text-left px-4 py-3 font-semibold text-gray-600">Département</th>
-                        <th class="text-left px-4 py-3 font-semibold text-gray-600">Poste</th>
-                        <th class="text-left px-4 py-3 font-semibold text-gray-600">Contrat</th>
-                        <th class="text-center px-4 py-3 font-semibold text-gray-600">Embauche</th>
-                        <th class="text-center px-4 py-3 font-semibold text-gray-600">Statut</th>
-                        <th class="px-4 py-3"></th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-100">
-                    @forelse($employees as $emp)
-                    @php
-                        $contractColors = ['cdi'=>'bg-blue-50 text-blue-700','cdd'=>'bg-amber-50 text-amber-700','interim'=>'bg-orange-50 text-orange-700','freelance'=>'bg-violet-50 text-violet-700'];
-                        $statusColors   = ['active'=>'bg-emerald-50 text-emerald-700','inactive'=>'bg-gray-100 text-gray-500','suspended'=>'bg-red-50 text-red-600'];
-                    @endphp
-                    <tr class="hover:bg-gray-50">
-                        <td class="px-4 py-3">
-                            <div class="font-medium text-gray-900">{{ $emp->user->name }}</div>
-                            <div class="text-xs text-gray-400">{{ $emp->user->email }}</div>
-                        </td>
-                        <td class="px-4 py-3 font-mono font-semibold text-emerald-700">{{ $emp->employee_code }}</td>
-                        <td class="px-4 py-3 text-gray-700">{{ $emp->department?->name ?? '—' }}</td>
-                        <td class="px-4 py-3 text-gray-600">{{ $emp->position?->name ?? '—' }}</td>
-                        <td class="px-4 py-3">
-                            <span class="px-2 py-0.5 rounded-full text-xs font-medium {{ $contractColors[$emp->contract_type] ?? 'bg-gray-100 text-gray-600' }}">
-                                {{ strtoupper($emp->contract_type) }}
-                            </span>
-                        </td>
-                        <td class="px-4 py-3 text-center text-gray-600">{{ $emp->hire_date?->format('d/m/Y') ?? '—' }}</td>
-                        <td class="px-4 py-3 text-center">
-                            <span class="px-2 py-0.5 rounded-full text-xs font-medium {{ $statusColors[$emp->status] ?? 'bg-gray-100 text-gray-500' }}">
-                                {{ ucfirst($emp->status) }}
-                            </span>
-                        </td>
-                        <td class="px-4 py-3 text-right">
-                            <button @click="openEdit({{ $emp }})" class="text-xs text-blue-600 hover:text-blue-700 font-medium mr-3">Modifier</button>
-                            <button @click="deleteItem({{ $emp->id }})" class="text-xs text-red-500 hover:text-red-600 font-medium">Supprimer</button>
-                        </td>
-                    </tr>
-                    @empty
-                    <tr><td colspan="8" class="px-4 py-8 text-center text-gray-400">Aucun employé enregistré.</td></tr>
-                    @endforelse
-                </tbody>
-            </table>
-            @if($employees->hasPages())
-            <div class="px-4 py-3 border-t border-gray-100">{{ $employees->links() }}</div>
-            @endif
+        {{-- Filtres --}}
+        <div class="bg-white rounded-xl border border-gray-200 px-4 py-3 mb-5 flex flex-wrap gap-3 items-center">
+            <input type="text" x-model="search" placeholder="Rechercher…"
+                   class="px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-400 w-48">
+            <select x-model="filterDept"
+                    class="px-3 py-1.5 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-emerald-400">
+                <option value="">Tous les départements</option>
+                @foreach($departments as $dept)
+                <option value="{{ $dept->id }}">{{ $dept->name }}</option>
+                @endforeach
+            </select>
+            <select x-model="filterStatus"
+                    class="px-3 py-1.5 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-emerald-400">
+                <option value="">Tous les statuts</option>
+                <option value="active">Actif</option>
+                <option value="inactive">Inactif</option>
+                <option value="suspended">Suspendu</option>
+            </select>
+            <span class="ml-auto text-xs text-gray-400" x-text="filtered.length + ' résultat(s)'"></span>
         </div>
 
-        {{-- Modal --}}
-        <div x-show="showModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <div class="absolute inset-0 bg-black/40" @click="closeModal()"></div>
-            <div class="relative bg-white rounded-2xl shadow-xl w-full max-w-lg z-10 p-6 space-y-4" @click.stop>
-                <h3 class="text-base font-semibold text-gray-900"
-                    x-text="editMode ? 'Modifier l\'employé' : 'Nouvel employé'"></h3>
+        {{-- Trombinoscope --}}
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            <template x-for="emp in filtered" :key="emp.id">
+                <div class="bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow overflow-hidden flex flex-col">
 
-                <div x-show="!editMode">
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Utilisateur *</label>
-                    <select x-model="form.user_id"
-                            class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                            :class="errors.user_id ? 'border-red-400' : ''">
-                        <option value="">— Sélectionner —</option>
-                        @foreach($users as $user)
-                        <option value="{{ $user->id }}">{{ $user->name }} ({{ $user->email }})</option>
-                        @endforeach
-                    </select>
-                    <p x-show="errors.user_id" x-text="errors.user_id" class="mt-1 text-xs text-red-600"></p>
+                    {{-- Color bar by department --}}
+                    <div class="h-1.5 bg-emerald-500"></div>
+
+                    <div class="p-5 flex flex-col flex-1">
+
+                        {{-- Avatar + status --}}
+                        <div class="flex items-start gap-3 mb-3">
+                            <img :src="emp.photo_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(emp.user?.name ?? 'E')}&background=047857&color=fff&size=80`"
+                                 class="w-14 h-14 rounded-full object-cover border-2 border-emerald-100 shrink-0"
+                                 :alt="emp.user?.name">
+                            <div class="flex-1 min-w-0">
+                                <p class="font-semibold text-gray-900 truncate" x-text="emp.user?.name"></p>
+                                <p class="text-xs text-gray-500 truncate" x-text="emp.position?.name ?? '—'"></p>
+                                <p class="text-xs text-emerald-600 font-mono mt-0.5" x-text="emp.employee_code"></p>
+                            </div>
+                        </div>
+
+                        {{-- Infos --}}
+                        <div class="space-y-1.5 flex-1">
+                            <div class="flex items-center gap-2 text-xs text-gray-500">
+                                <svg class="w-3.5 h-3.5 text-gray-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5"/>
+                                </svg>
+                                <span x-text="emp.department?.name ?? '—'" class="truncate"></span>
+                            </div>
+                            <div class="flex items-center gap-2 text-xs text-gray-500">
+                                <svg class="w-3.5 h-3.5 text-gray-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+                                </svg>
+                                <span x-text="emp.hire_date ? 'Depuis ' + new Date(emp.hire_date).toLocaleDateString('fr-FR', {year:'numeric',month:'short'}) : '—'"></span>
+                            </div>
+                            <div class="flex items-center gap-2 text-xs text-gray-500">
+                                <svg class="w-3.5 h-3.5 text-gray-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                                <span x-text="(emp.weekly_hours_minutes / 60).toFixed(1) + 'h/sem'"></span>
+                            </div>
+                        </div>
+
+                        {{-- Footer --}}
+                        <div class="flex items-center justify-between mt-4 pt-3 border-t border-gray-100">
+                            <div class="flex gap-1.5">
+                                <span class="px-2 py-0.5 rounded-full text-xs font-medium"
+                                      :class="{
+                                          'bg-emerald-50 text-emerald-700': emp.status === 'active',
+                                          'bg-gray-100 text-gray-500':    emp.status === 'inactive',
+                                          'bg-red-50 text-red-600':       emp.status === 'suspended',
+                                      }"
+                                      x-text="emp.status === 'active' ? 'Actif' : emp.status === 'inactive' ? 'Inactif' : 'Suspendu'">
+                                </span>
+                                <span class="px-2 py-0.5 rounded-full text-xs font-medium"
+                                      :class="{
+                                          'bg-blue-50 text-blue-700':     emp.contract_type === 'cdi',
+                                          'bg-amber-50 text-amber-700':   emp.contract_type === 'cdd',
+                                          'bg-orange-50 text-orange-700': emp.contract_type === 'interim',
+                                          'bg-violet-50 text-violet-700': emp.contract_type === 'freelance',
+                                      }"
+                                      x-text="emp.contract_type?.toUpperCase()">
+                                </span>
+                            </div>
+                            <div class="flex gap-1">
+                                <button @click="openEdit(emp)"
+                                        class="w-7 h-7 flex items-center justify-center text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                    </svg>
+                                </button>
+                                <button @click="deleteItem(emp.id)"
+                                        class="w-7 h-7 flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </template>
+
+            <template x-if="filtered.length === 0">
+                <div class="col-span-full py-16 text-center">
+                    <p class="text-gray-400 text-sm">Aucun employé ne correspond aux filtres.</p>
+                </div>
+            </template>
+        </div>
+
+        {{-- Pagination --}}
+        @if($employees->hasPages())
+        <div class="mt-6">{{ $employees->links() }}</div>
+        @endif
+
+        {{-- Modal créer / modifier --}}
+        <div x-show="showModal" x-cloak
+             class="fixed inset-0 z-50 flex items-center justify-center p-4"
+             @keydown.escape.window="closeModal()">
+            <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" @click="closeModal()"></div>
+            <div class="relative bg-white rounded-2xl shadow-xl w-full max-w-lg z-10 flex flex-col max-h-[90vh]" @click.stop>
+
+                {{-- Header --}}
+                <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100 shrink-0">
+                    <h3 class="text-base font-semibold text-gray-900"
+                        x-text="editMode ? 'Modifier l\'employé' : 'Nouvel employé'"></h3>
+                    <button @click="closeModal()" class="text-gray-400 hover:text-gray-600">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
                 </div>
 
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Code employé *</label>
-                        <input type="text" x-model="form.employee_code" placeholder="EMP-001"
-                               class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                               :class="errors.employee_code ? 'border-red-400' : ''">
-                        <p x-show="errors.employee_code" x-text="errors.employee_code" class="mt-1 text-xs text-red-600"></p>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Date d'embauche *</label>
-                        <input type="date" x-model="form.hire_date"
-                               class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                               :class="errors.hire_date ? 'border-red-400' : ''">
-                        <p x-show="errors.hire_date" x-text="errors.hire_date" class="mt-1 text-xs text-red-600"></p>
-                    </div>
-                </div>
+                {{-- Body --}}
+                <div class="px-6 py-5 space-y-4 overflow-y-auto">
 
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Département *</label>
-                        <select x-model="form.department_id"
+                    <div x-show="!editMode">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Utilisateur *</label>
+                        <select x-model="form.user_id"
                                 class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                                :class="errors.department_id ? 'border-red-400' : ''">
+                                :class="errors.user_id ? 'border-red-400' : ''">
                             <option value="">— Sélectionner —</option>
-                            @foreach($departments as $dept)
-                            <option value="{{ $dept->id }}">{{ $dept->name }}</option>
+                            @foreach($users as $user)
+                            <option value="{{ $user->id }}">{{ $user->name }} ({{ $user->email }})</option>
                             @endforeach
                         </select>
-                        <p x-show="errors.department_id" x-text="errors.department_id" class="mt-1 text-xs text-red-600"></p>
+                        <p x-show="errors.user_id" x-text="errors.user_id" class="mt-1 text-xs text-red-600"></p>
                     </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Poste *</label>
-                        <select x-model="form.position_id"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                                :class="errors.position_id ? 'border-red-400' : ''">
-                            <option value="">— Sélectionner —</option>
-                            @foreach($positions as $pos)
-                            <option value="{{ $pos->id }}">{{ $pos->name }}</option>
-                            @endforeach
-                        </select>
-                        <p x-show="errors.position_id" x-text="errors.position_id" class="mt-1 text-xs text-red-600"></p>
-                    </div>
-                </div>
 
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Type de contrat *</label>
-                        <select x-model="form.contract_type"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
-                            <option value="cdi">CDI</option>
-                            <option value="cdd">CDD</option>
-                            <option value="interim">Intérim</option>
-                            <option value="freelance">Freelance</option>
-                        </select>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Code employé *</label>
+                            <input type="text" x-model="form.employee_code" placeholder="EMP-001"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                                   :class="errors.employee_code ? 'border-red-400' : ''">
+                            <p x-show="errors.employee_code" x-text="errors.employee_code" class="mt-1 text-xs text-red-600"></p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Date d'embauche *</label>
+                            <input type="date" x-model="form.hire_date"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                                   :class="errors.hire_date ? 'border-red-400' : ''">
+                            <p x-show="errors.hire_date" x-text="errors.hire_date" class="mt-1 text-xs text-red-600"></p>
+                        </div>
                     </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Département *</label>
+                            <select x-model="form.department_id"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                                    :class="errors.department_id ? 'border-red-400' : ''">
+                                <option value="">— Sélectionner —</option>
+                                @foreach($departments as $dept)
+                                <option value="{{ $dept->id }}">{{ $dept->name }}</option>
+                                @endforeach
+                            </select>
+                            <p x-show="errors.department_id" x-text="errors.department_id" class="mt-1 text-xs text-red-600"></p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Poste *</label>
+                            <select x-model="form.position_id"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                                    :class="errors.position_id ? 'border-red-400' : ''">
+                                <option value="">— Sélectionner —</option>
+                                @foreach($positions as $pos)
+                                <option value="{{ $pos->id }}">{{ $pos->title }}</option>
+                                @endforeach
+                            </select>
+                            <p x-show="errors.position_id" x-text="errors.position_id" class="mt-1 text-xs text-red-600"></p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Contrat *</label>
+                            <select x-model="form.contract_type"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                                <option value="cdi">CDI</option>
+                                <option value="cdd">CDD</option>
+                                <option value="interim">Intérim</option>
+                                <option value="freelance">Freelance</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">H/semaine (min) *</label>
+                            <input type="number" x-model="form.weekly_hours_minutes" min="60" max="3600" step="30"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                            <p class="mt-0.5 text-xs text-gray-400">Ex: 2400 = 40h</p>
+                        </div>
+                    </div>
+
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">H/semaine (min) *</label>
-                        <input type="number" x-model="form.weekly_hours_minutes" min="60" max="3600" step="30"
+                        <label class="block text-sm font-medium text-gray-700 mb-1">URL Photo</label>
+                        <input type="url" x-model="form.photo_url" placeholder="https://…"
                                class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
-                        <p class="mt-0.5 text-xs text-gray-400">Ex: 2400 = 40h</p>
+                        <p class="mt-0.5 text-xs text-gray-400">Laisser vide pour utiliser l'avatar généré automatiquement.</p>
                     </div>
+
+                    <div x-show="editMode">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Statut</label>
+                        <select x-model="form.status"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                            <option value="active">Actif</option>
+                            <option value="inactive">Inactif</option>
+                            <option value="suspended">Suspendu</option>
+                        </select>
+                    </div>
+
                 </div>
 
-                <div x-show="editMode">
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Statut</label>
-                    <select x-model="form.status"
-                            class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
-                        <option value="active">Actif</option>
-                        <option value="inactive">Inactif</option>
-                        <option value="suspended">Suspendu</option>
-                    </select>
-                </div>
-
-                <div class="flex justify-end gap-3 pt-2">
-                    <button @click="closeModal()" class="px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50">Annuler</button>
+                {{-- Footer --}}
+                <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-100 bg-gray-50 shrink-0">
+                    <button @click="closeModal()" class="px-4 py-2 text-sm border border-gray-300 rounded-lg bg-white hover:bg-gray-50">Annuler</button>
                     <button @click="save()" :disabled="loading"
-                            class="px-5 py-2 text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg disabled:opacity-60">
+                            class="px-5 py-2 text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg disabled:opacity-60 transition-colors">
                         <span x-show="!loading">Enregistrer</span><span x-show="loading">…</span>
                     </button>
                 </div>
@@ -179,6 +275,80 @@
     </div>
 
     @push('scripts')
-    @include('modules.timetable._crud-script')
+    <script>
+        const _employees = @json($employees->items());
+
+        function employeesApp({ storeUrl, updateBase, deleteBase }) {
+            const csrf = document.querySelector('meta[name="csrf-token"]').content;
+            const empty = () => ({ user_id:'', department_id:'', position_id:'', employee_code:'', hire_date:'', contract_type:'cdi', weekly_hours_minutes: 2400, status:'active', photo_url:'' });
+
+            return {
+                all:          _employees,
+                search:       '',
+                filterDept:   '',
+                filterStatus: '',
+                showModal:    false,
+                editMode:     false,
+                loading:      false,
+                itemId:       null,
+                form:         empty(),
+                errors:       {},
+
+                get filtered() {
+                    return this.all.filter(e => {
+                        const name = (e.user?.name ?? '').toLowerCase();
+                        const code = (e.employee_code ?? '').toLowerCase();
+                        const q    = this.search.toLowerCase();
+                        if (q && !name.includes(q) && !code.includes(q)) return false;
+                        if (this.filterDept   && String(e.department_id) !== String(this.filterDept))   return false;
+                        if (this.filterStatus && e.status !== this.filterStatus) return false;
+                        return true;
+                    });
+                },
+
+                openCreate() { this.editMode = false; this.itemId = null; this.errors = {}; this.form = empty(); this.showModal = true; },
+                openEdit(emp) {
+                    this.editMode = true; this.itemId = emp.id; this.errors = {};
+                    this.form = {
+                        user_id: String(emp.user_id), department_id: String(emp.department_id), position_id: String(emp.position_id),
+                        employee_code: emp.employee_code, hire_date: emp.hire_date?.substring(0,10) ?? '',
+                        contract_type: emp.contract_type, weekly_hours_minutes: emp.weekly_hours_minutes,
+                        status: emp.status, photo_url: emp.photo_url ?? '',
+                    };
+                    this.showModal = true;
+                },
+                closeModal() { this.showModal = false; },
+
+                async save() {
+                    this.errors = {}; this.loading = true;
+                    const url    = this.editMode ? updateBase.replace('__ID__', this.itemId) : storeUrl;
+                    const method = this.editMode ? 'PUT' : 'POST';
+                    try {
+                        const res = await fetch(url, {
+                            method, headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrf },
+                            body: JSON.stringify(this.form),
+                        });
+                        if (res.status === 422) {
+                            const d = await res.json();
+                            this.errors = Object.fromEntries(Object.entries(d.errors ?? {}).map(([k,v]) => [k, Array.isArray(v) ? v[0] : v]));
+                            return;
+                        }
+                        if (!res.ok) throw new Error();
+                        this.closeModal();
+                        window.location.reload();
+                    } catch(e) { console.error(e); } finally { this.loading = false; }
+                },
+
+                async deleteItem(id) {
+                    if (!confirm('Supprimer cet employé ?')) return;
+                    try {
+                        const res = await fetch(deleteBase.replace('__ID__', id), { method: 'DELETE', headers: { 'X-CSRF-TOKEN': csrf } });
+                        if (!res.ok) throw new Error();
+                        this.all = this.all.filter(e => e.id !== id);
+                    } catch(e) { console.error(e); }
+                },
+            };
+        }
+    </script>
     @endpush
 </x-app-layout>

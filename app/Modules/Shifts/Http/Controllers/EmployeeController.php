@@ -15,7 +15,7 @@ class EmployeeController extends Controller
 {
     public function index(): View
     {
-        $employees   = Employee::with(['user', 'department', 'position'])->orderBy('id')->paginate(20);
+        $employees   = Employee::with(['user', 'department', 'position'])->orderBy('id')->paginate(60);
         $departments = Department::orderBy('name')->get();
         $positions   = Position::orderBy('name')->get();
         $users       = User::doesntHave('employee')->orderBy('name')->get(['id', 'name', 'email']);
@@ -33,6 +33,7 @@ class EmployeeController extends Controller
             'hire_date'            => 'required|date',
             'contract_type'        => 'required|string|in:cdi,cdd,interim,freelance',
             'weekly_hours_minutes' => 'required|integer|min:60|max:3600',
+            'photo_url'            => 'nullable|url',
         ]);
 
         $data['status'] = 'active';
@@ -52,9 +53,11 @@ class EmployeeController extends Controller
             'contract_type'        => 'required|string|in:cdi,cdd,interim,freelance',
             'weekly_hours_minutes' => 'required|integer|min:60|max:3600',
             'status'               => 'required|string|in:active,inactive,suspended',
+            'photo_url'            => 'nullable|url',
         ]);
 
         $employee->update($data);
+        $employee->load(['user', 'department', 'position']);
         return response()->json($employee);
     }
 

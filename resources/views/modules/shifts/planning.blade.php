@@ -68,6 +68,25 @@
             </div>
         </div>
 
+        {{-- Weekly limit warning --}}
+        <div x-show="warnings.length > 0" x-cloak
+             class="bg-amber-50 border border-amber-200 rounded-xl p-4">
+            <div class="flex items-start gap-3">
+                <svg class="w-5 h-5 text-amber-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                </svg>
+                <div class="flex-1">
+                    <p class="text-sm font-semibold text-amber-700">Avertissements</p>
+                    <ul class="mt-1 space-y-1">
+                        <template x-for="w in warnings">
+                            <li class="text-sm text-amber-600" x-text="w.message"></li>
+                        </template>
+                    </ul>
+                    <button @click="warnings=[]" class="mt-2 text-xs text-amber-500 hover:underline">Ignorer</button>
+                </div>
+            </div>
+        </div>
+
         {{-- Conflict alert --}}
         <div x-show="conflicts.length > 0" x-cloak
              class="bg-red-50 border border-red-200 rounded-xl p-4">
@@ -195,6 +214,7 @@
                 shiftId:     null,
                 pendingData: null,
                 conflicts:   [],
+                warnings:    [],
                 errors:      {},
                 form: {
                     employee_id:   '',
@@ -239,7 +259,7 @@
                     this.showModal = true;
                 },
 
-                closeModal() { this.showModal = false; this.conflicts = []; },
+                closeModal() { this.showModal = false; this.conflicts = []; this.warnings = []; },
 
                 async saveShift(force = false) {
                     this.errors  = {};
@@ -271,6 +291,8 @@
                             return;
                         }
                         if (!res.ok) throw new Error();
+                        const d = await res.json().catch(() => ({}));
+                        if (d.warnings?.length) { this.warnings = d.warnings; }
                         this.closeModal();
                         window.dispatchEvent(new CustomEvent('cs:refresh-shifts'));
                     } catch(e) { console.error(e); }
