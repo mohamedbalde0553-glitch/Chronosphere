@@ -1,0 +1,29 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(php artisan *)",
+      "Bash(composer *)",
+      "Bash(npm *)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git status)",
+      "Bash(git log *)",
+      "Bash(git diff *)",
+      "Bash(mysql -u root *)",
+      "Bash(mysqldump *)",
+      "Edit(**/*)",
+      "Write(**/*)",
+      "Read(**/*)"
+    ],
+    "deny": [
+      "Bash(rm -rf *)",
+      "Bash(del /f /s /q *)",
+      "Bash(format *)",
+      "Bash(git push *)",
+      "Bash(git reset --hard *)",
+      "Bash(DROP DATABASE *)",
+      "Bash(DROP TABLE *)",
+      "Bash(shutdown *)"
+    ]
+  }
+}

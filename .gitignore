@@ -1,0 +1,19 @@
+# Fichiers sensibles
+.env
+.env.backup
+
+# Dossiers
+node_modules/
+vendor/
+storage/logs/
+storage/framework/cache/
+storage/framework/sessions/
+storage/framework/views/
+
+# IDE
+.vscode/
+.idea/
+
+# Backups
+backups/
+*.sql
