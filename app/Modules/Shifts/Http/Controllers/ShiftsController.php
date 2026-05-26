@@ -1,0 +1,126 @@
+<?php
+
+namespace App\Modules\Shifts\Http\Controllers;
+
+use App\Http\Controllers\Controller;
+use App\Modules\Shifts\Models\Department;
+use App\Modules\Shifts\Models\Employee;
+use App\Modules\Shifts\Models\LeaveRequest;
+use App\Modules\Shifts\Models\Shift;
+use App\Modules\Shifts\Models\ShiftType;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\View\View;
+
+class ShiftsController extends Controller
+{
+    public function index(): View
+    {
+        $stats = [
+            'employees'      => Employee::active()->count(),
+            'departments'    => Department::count(),
+            'shifts_week'    => Shift::inRange(
+                                    now()->startOfWeek()->toDateTimeString(),
+                                    now()->endOfWeek()->toDateTimeString()
+                                )->count(),
+            'leaves_pending' => LeaveRequest::pending()->count(),
+        ];
+
+        $upcomingShifts = Shift::with(['employee.user', 'shiftType'])
+            ->where('start_at', '>=', now())
+            ->where('start_at', '<=', now()->addDays(7))
+            ->where('status', 'planned')
+            ->orderBy('start_at')
+            ->limit(5)
+            ->get();
+
+        $pendingLeaves = LeaveRequest::with(['employee.user'])
+            ->pending()
+            ->orderByDesc('created_at')
+            ->limit(5)
+            ->get();
+
+        return view('modules.shifts.index', compact('stats', 'upcomingShifts', 'pendingLeaves'));
+    }
+
+    public function planning(Request $request): View
+    {
+        $departments = Department::orderBy('name')->get();
+        $employees   = Employee::with(['user', 'department'])->active()->orderBy('id')->get();
+        $shiftTypes  = ShiftType::orderBy('name')->get();
+
+        $filterType = $request->get('by', 'department');
+        $filterId   = $request->get('id', $departments->first()?->id);
+
+        return view('modules.shifts.planning', compact(
+            'departments', 'employees', 'shiftTypes', 'filterType', 'filterId'
+        ));
+    }
+
+    public function feed(Request $request): JsonResponse
+    {
+        $start      = $request->query('start', now()->startOfWeek()->toDateTimeString());
+        $end        = $request->query('end', now()->endOfWeek()->toDateTimeString());
+        $filterType = $request->query('by', 'department');
+        $filterId   = $request->query('id');
+
+        $query = Shift::with(['employee.user', 'shiftType'])
+            ->inRange($start, $end)
+            ->where('status', '!=', 'cancelled');
+
+        if ($filterId) {
+            match ($filterType) {
+                'department' => $query->whereHas('employee', fn ($q) => $q->where('department_id', $filterId)),
+                'employee'   => $query->where('employee_id', $filterId),
+                default      => null,
+            };
+        }
+
+        $shifts = $query->get()->map(fn (Shift $s) => [
+            'id'              => $s->id,
+            'title'           => $s->employee->user->name
+                                 . ($s->shiftType ? ' — ' . $s->shiftType->name : ''),
+            'start'           => $s->start_at->toIso8601String(),
+            'end'             => $s->end_at->toIso8601String(),
+            'backgroundColor' => $s->shiftType?->color ?? '#059669',
+            'borderColor'     => $s->shiftType?->color ?? '#059669',
+            'extendedProps'   => [
+                'employee_id'     => $s->employee_id,
+                'employee_name'   => $s->employee->user->name,
+                'shift_type_id'   => $s->shift_type_id,
+                'shift_type_name' => $s->shiftType?->name,
+                'status'          => $s->status,
+                'notes'           => $s->notes,
+            ],
+        ]);
+
+        // Approved leaves as allDay background events
+        $leaveQuery = LeaveRequest::with(['employee.user'])
+            ->approved()
+            ->where('start_date', '<=', substr($end, 0, 10))
+            ->where('end_date', '>=', substr($start, 0, 10));
+
+        if ($filterId) {
+            match ($filterType) {
+                'department' => $leaveQuery->whereHas('employee', fn ($q) => $q->where('department_id', $filterId)),
+                'employee'   => $leaveQuery->where('employee_id', $filterId),
+                default      => null,
+            };
+        }
+
+        $leaves = $leaveQuery->get()->map(fn (LeaveRequest $l) => [
+            'id'              => 'leave-' . $l->id,
+            'title'           => $l->employee->user->name . ' — Congé',
+            'start'           => $l->start_date->toDateString(),
+            'end'             => $l->end_date->addDay()->toDateString(),
+            'allDay'          => true,
+            'backgroundColor' => '#FEF3C7',
+            'borderColor'     => '#F59E0B',
+            'textColor'       => '#92400E',
+            'display'         => 'background',
+            'extendedProps'   => ['type' => 'leave'],
+        ]);
+
+        return response()->json($shifts->merge($leaves)->values());
+    }
+}
