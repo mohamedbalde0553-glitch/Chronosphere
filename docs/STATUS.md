@@ -2,7 +2,7 @@
 
 ## État global
 - Date de démarrage : 2026-05-26
-- Phase actuelle : Phase 3 - Packages Composer
+- Phase actuelle : Phase 5 - Structure des dossiers
 - Dernière session : 2026-05-26
 
 ## Phases terminées
@@ -20,9 +20,25 @@
 - Migrations de base exécutées avec succès (users, cache, jobs)
 - Git initialisé — commit initial effectué
 
+## Phases terminées (suite)
+
+### Phase 3 — Packages Composer
+- spatie/laravel-permission 7.4, maatwebsite/excel 3.1, barryvdh/laravel-dompdf 3.1
+- intervention/image 4.1, spatie/laravel-activitylog 4.12, spatie/laravel-backup 10.2
+- spatie/laravel-translatable 6.14, laravel/telescope 5.20 (dev), laravel/pint (déjà présent)
+- Configs publiées : permission, excel, dompdf, telescope
+- Fix Composer : preferred-install=dist, github-protocols=https
+
+### Phase 4 — Packages NPM
+- alpinejs, @fullcalendar/* (core/daygrid/timegrid/list/interaction)
+- frappe-gantt, chart.js, html2canvas, html2pdf.js, sortablejs, lucide, dayjs
+- Tailwind v4 : 5 palettes configurées via @theme dans app.css
+- Alpine.js initialisé dans app.js
+- Build Vite validé (11.7s)
+
 ## Phase en cours
 
-Phase 3 - Packages Composer
+Phase 5 - Structure des dossiers
 
 ## Phases à venir
 
