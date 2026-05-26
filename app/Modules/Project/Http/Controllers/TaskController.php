@@ -24,6 +24,7 @@ class TaskController extends Controller
             'estimated_minutes' => 'nullable|integer|min:0',
             'parent_task_id'    => 'nullable|exists:project_tasks,id',
             'color'             => 'nullable|string|max:7',
+            'progress'          => 'nullable|integer|min:0|max:100',
         ]);
 
         $data['project_id'] = $project->id;
