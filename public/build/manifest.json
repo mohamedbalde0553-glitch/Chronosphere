@@ -1,6 +1,17 @@
 {
+  "_daygrid-BYn2ISNQ.js": {
+    "file": "assets/daygrid-BYn2ISNQ.js",
+    "name": "daygrid",
+    "imports": [
+      "_fr-CW4AyKe1.js"
+    ]
+  },
+  "_fr-CW4AyKe1.js": {
+    "file": "assets/fr-CW4AyKe1.js",
+    "name": "fr"
+  },
   "resources/css/app.css": {
-    "file": "assets/app-CslPm8sB.css",
+    "file": "assets/app-D5lJLUzc.css",
     "name": "app",
     "names": [
       "app.css"
@@ -14,10 +25,48 @@
     "src": "resources/js/app.js",
     "isEntry": true
   },
+  "resources/js/booking.js": {
+    "file": "assets/booking-mvrvO_CA.js",
+    "name": "booking",
+    "src": "resources/js/booking.js",
+    "isEntry": true,
+    "imports": [
+      "_fr-CW4AyKe1.js",
+      "_daygrid-BYn2ISNQ.js"
+    ]
+  },
   "resources/js/calendar.js": {
-    "file": "assets/calendar-CIdVYThG.js",
+    "file": "assets/calendar-BTuT9R5E.js",
     "name": "calendar",
     "src": "resources/js/calendar.js",
+    "isEntry": true,
+    "imports": [
+      "_fr-CW4AyKe1.js",
+      "_daygrid-BYn2ISNQ.js"
+    ]
+  },
+  "resources/js/project.js": {
+    "file": "assets/project-Cl6tbFbx.js",
+    "name": "project",
+    "src": "resources/js/project.js",
     "isEntry": true
+  },
+  "resources/js/shifts.js": {
+    "file": "assets/shifts-D62m_LOA.js",
+    "name": "shifts",
+    "src": "resources/js/shifts.js",
+    "isEntry": true,
+    "imports": [
+      "_fr-CW4AyKe1.js"
+    ]
+  },
+  "resources/js/timetable.js": {
+    "file": "assets/timetable-C39o13G-.js",
+    "name": "timetable",
+    "src": "resources/js/timetable.js",
+    "isEntry": true,
+    "imports": [
+      "_fr-CW4AyKe1.js"
+    ]
   }
 }

@@ -10,12 +10,21 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @stack('styles')
 </head>
-<body class="h-full bg-gray-50 font-sans antialiased" x-data="{ sidebar: true, notifOpen: false, userOpen: false }">
+<body class="h-full bg-gray-50 font-sans antialiased" x-data="{ sidebar: true, mobileNav: false, notifOpen: false, userOpen: false }">
 
 {{-- ===== SIDEBAR ===== --}}
+{{-- Mobile overlay backdrop --}}
+<div x-show="mobileNav" x-cloak @click="mobileNav=false"
+     class="fixed inset-0 z-40 bg-black/50 md:hidden"></div>
+
 <aside
-    class="fixed inset-y-0 left-0 z-50 flex flex-col bg-gray-900 transition-all duration-300"
-    :class="sidebar ? 'w-64' : 'w-16'">
+    class="fixed inset-y-0 left-0 z-50 flex flex-col bg-gray-900 transition-all duration-300 md:translate-x-0"
+    :class="{
+        'w-64': sidebar,
+        'w-16': !sidebar,
+        '-translate-x-full': !mobileNav,
+        'translate-x-0': mobileNav
+    }">
 
     {{-- Logo --}}
     <div class="flex items-center h-16 px-4 border-b border-gray-700 shrink-0">
@@ -144,10 +153,16 @@
 </aside>
 
 {{-- ===== MAIN ===== --}}
-<div class="transition-all duration-300" :class="sidebar ? 'pl-64' : 'pl-16'">
+<div class="transition-all duration-300" :class="sidebar ? 'md:pl-64' : 'md:pl-16'">
 
     {{-- Topbar --}}
-    <header class="sticky top-0 z-40 bg-white border-b border-gray-200 h-14 flex items-center px-6 gap-4">
+    <header class="sticky top-0 z-40 bg-white border-b border-gray-200 h-14 flex items-center px-4 md:px-6 gap-4">
+        {{-- Hamburger (mobile only) --}}
+        <button @click="mobileNav=!mobileNav" class="md:hidden text-gray-500 hover:text-gray-700 shrink-0">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>
+            </svg>
+        </button>
         <h1 class="text-base font-semibold text-gray-900 truncate">
             {{ $title ?? 'Tableau de bord' }}
         </h1>
@@ -176,7 +191,7 @@
     @endif
 
     {{-- Content --}}
-    <main class="p-6">
+    <main class="p-4 md:p-6">
         {{ $slot }}
     </main>
 </div>

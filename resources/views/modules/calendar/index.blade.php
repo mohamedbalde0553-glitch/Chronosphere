@@ -116,11 +116,11 @@
             <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" @click="closeModal()"></div>
 
             {{-- Panel --}}
-            <div class="relative bg-white rounded-2xl shadow-xl w-full max-w-lg z-10 overflow-hidden"
+            <div class="relative bg-white rounded-2xl shadow-xl w-full max-w-lg z-10 flex flex-col max-h-[90vh]"
                  @click.stop>
 
                 {{-- Header --}}
-                <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+                <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100 shrink-0">
                     <h3 class="text-base font-semibold text-gray-900"
                         x-text="editMode ? 'Modifier l\'événement' : 'Nouvel événement'">
                     </h3>
@@ -132,7 +132,7 @@
                 </div>
 
                 {{-- Form --}}
-                <div class="px-6 py-5 space-y-4">
+                <div class="px-6 py-5 space-y-4 overflow-y-auto">
 
                     {{-- Titre --}}
                     <div>
@@ -192,7 +192,7 @@
                                 @foreach(['#7C3AED','#2563EB','#059669','#EA580C','#DC2626','#DB2777','#0891B2','#6B7280'] as $c)
                                 <button type="button"
                                         @click="form.color = '{{ $c }}'"
-                                        class="w-6 h-6 rounded-full border-2 transition-transform hover:scale-110"
+                                        class="w-6 h-6 rounded-full border-2 transition-shadow hover:shadow-md"
                                         :class="form.color === '{{ $c }}' ? 'border-gray-800 scale-110' : 'border-transparent'"
                                         style="background:{{ $c }}">
                                 </button>
@@ -222,7 +222,7 @@
                 </div>
 
                 {{-- Footer --}}
-                <div class="flex items-center justify-between px-6 py-4 border-t border-gray-100 bg-gray-50">
+                <div class="flex items-center justify-between px-6 py-4 border-t border-gray-100 bg-gray-50 shrink-0">
                     <div>
                         <button x-show="editMode" @click="deleteEvent()"
                                 class="px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50 rounded-lg transition-colors">
