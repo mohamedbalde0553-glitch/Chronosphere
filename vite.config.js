@@ -13,6 +13,7 @@ export default defineConfig({
                 'resources/js/timetable.js',
                 'resources/js/shifts.js',
                 'resources/js/booking.js',
+                'resources/js/project.js',
             ],
             refresh: true,
         }),
