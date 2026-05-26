@@ -14,8 +14,7 @@ class CourseSession extends Model
     protected $table = 'uni_course_sessions';
 
     protected $fillable = [
-        'course_id', 'room_id', 'teacher_id', 'start_at', 'end_at',
-        'duration_minutes', 'status', 'notes', 'cancelled_reason',
+        'course_id', 'room_id', 'start_at', 'end_at', 'status', 'notes',
     ];
 
     protected function casts(): array

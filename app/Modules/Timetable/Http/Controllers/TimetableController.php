@@ -26,7 +26,7 @@ class TimetableController extends Controller
             'sessions' => CourseSession::whereDate('start_at', '>=', now()->startOfWeek())->count(),
         ];
 
-        $currentYear = AcademicYear::where('is_current', true)->first();
+        $currentYear = AcademicYear::where('is_active', true)->first();
         $upcomingSessions = CourseSession::with(['course.subject', 'course.teacher.user', 'room'])
             ->where('start_at', '>=', now())
             ->where('start_at', '<=', now()->addDays(7))

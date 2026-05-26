@@ -27,14 +27,7 @@ class SessionController extends Controller
             return response()->json(['conflicts' => $conflicts], 409);
         }
 
-        $duration = (int) round(
-            (strtotime($data['end_at']) - strtotime($data['start_at'])) / 60
-        );
-
-        $session = CourseSession::create($data + [
-            'duration_minutes' => $duration,
-            'status'           => 'scheduled',
-        ]);
+        $session = CourseSession::create($data + ['status' => 'scheduled']);
 
         $session->load(['course.subject', 'room']);
 
@@ -66,9 +59,6 @@ class SessionController extends Controller
             if ($conflicts && !$request->boolean('force')) {
                 return response()->json(['conflicts' => $conflicts], 409);
             }
-            $data['duration_minutes'] = (int) round(
-                (strtotime($data['end_at']) - strtotime($data['start_at'])) / 60
-            );
         }
 
         $session->update($data);
