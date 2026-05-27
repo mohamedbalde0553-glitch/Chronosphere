@@ -35,7 +35,7 @@
         </div>
 
         {{-- ===== KPI CARDS ===== --}}
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div class="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
 
             <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
                 <div class="flex items-center justify-between mb-3">
@@ -83,6 +83,19 @@
                 <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Taux cette semaine</p>
             </div>
 
+            <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Horaires actifs</span>
+                    <div class="w-8 h-8 rounded-lg bg-violet-50 dark:bg-violet-900/30 flex items-center justify-center">
+                        <svg class="w-4 h-4 text-violet-600 dark:text-violet-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                    </div>
+                </div>
+                <p class="text-2xl font-bold text-gray-900 dark:text-white" x-text="stats ? stats.week.schedules_active : '…'"></p>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                    <a href="{{ route('shifts.schedules.index') }}" class="text-violet-600 dark:text-violet-400 hover:underline">Gérer →</a>
+                </p>
+            </div>
+
         </div>
 
         {{-- ===== GRAPHIQUES + NAV ===== --}}
@@ -102,12 +115,12 @@
                 <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-4">Accès rapide</h3>
                 <nav class="space-y-1">
                     @foreach([
-                        ['label'=>'Grille de planning',  'route'=>'shifts.planning',          'icon'=>'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z',  'color'=>'indigo'],
-                        ['label'=>'Employés',             'route'=>'shifts.employees.index',   'icon'=>'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z', 'color'=>'emerald'],
-                        ['label'=>'Départements',         'route'=>'shifts.departments.index', 'icon'=>'M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-2 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4', 'color'=>'blue'],
-                        ['label'=>'Types de shifts',      'route'=>'shifts.shift-types.index', 'icon'=>'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z', 'color'=>'violet'],
-                        ['label'=>'Demandes de congés',   'route'=>'shifts.leaves.index',      'icon'=>'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2', 'color'=>'amber'],
-                        ['label'=>'Compétences',           'route'=>'shifts.skills.index',      'icon'=>'M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z', 'color'=>'purple'],
+                        ['label'=>'Grille de planning',   'route'=>'shifts.planning',           'icon'=>'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z',  'color'=>'indigo'],
+                        ['label'=>'Employés',              'route'=>'shifts.employees.index',    'icon'=>'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z', 'color'=>'emerald'],
+                        ['label'=>'Horaires périodiques',  'route'=>'shifts.schedules.index',   'icon'=>'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z', 'color'=>'violet'],
+                        ['label'=>'Départements',          'route'=>'shifts.departments.index',  'icon'=>'M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-2 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4', 'color'=>'blue'],
+                        ['label'=>'Demandes de congés',    'route'=>'shifts.leaves.index',       'icon'=>'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2', 'color'=>'amber'],
+                        ['label'=>'Compétences',            'route'=>'shifts.skills.index',       'icon'=>'M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z', 'color'=>'purple'],
                     ] as $nav)
                     <a href="{{ route($nav['route']) }}"
                        class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white transition-colors

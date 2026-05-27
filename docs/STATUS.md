@@ -2,7 +2,7 @@
 
 ## État global
 - Date de démarrage : 2026-05-26
-- Phase actuelle : **Phase J terminée** (Horaires périodiques — Module 2)
+- Phase actuelle : **Phase K terminée** (Polish UI/UX Module 2)
 - Dernière session : 2026-05-27
 
 ## Décision stratégique importante
@@ -171,6 +171,30 @@ Patterns dark mode appliqués :
 - Fix phpunit.xml : `APP_URL=http://localhost` (évite 404 liés au sous-répertoire WAMP)
 - Fix RegistrationTest : `Role::create(['name'=>'cal_user'])` dans setUp (Spatie Permission)
 - Couverture : CRUD complet, validations, workflows métier (conflit réservation, approbation congé)
+
+### Phase K — Polish UI/UX Module 2 (2026-05-27)
+
+#### K.1 — Dashboard RH enrichi
+- 5ème KPI card "Horaires actifs" (violet) — count des schedules actifs aujourd'hui
+- `StatsController` : ajout `schedules_active` dans la réponse JSON
+- Nav rapide : "Horaires périodiques" ajouté (avec lien vers `schedules.index`)
+
+#### K.2 — Page de détail employé (`shifts/employees/{employee}`)
+- Route `GET /shifts/employees/{employee}` → `shifts.employees.show`
+- `EmployeeController::show()` : charge user, department, position, skills, leaves, activeSchedule, expectedMinutes, monthWorked
+- Vue `shifts/employees/show.blade.php` : en-tête avec avatar + statut + 4 onglets Alpine.js :
+  - **Informations** : données contractuelles + compétences (niveau 1–5) + 4 KPI stats mois
+  - **Planning** : FullCalendar timeGridWeek filtré pour l'employé (réutilise le feed existant `?by=employee&id=X`)
+  - **Congés** : tableau de toutes les demandes avec type, dates, statut
+  - **Horaire actif** : détail des jours configurés + barre progression heures mois / attendues / écart
+- Hash URL (#infos, #planning, …) pour navigation directe
+
+#### K.3 — Trombinoscope
+- Bouton "Voir fiche" (icône œil, vert) ajouté sur chaque carte employé → lien dynamique Alpine.js
+
+**158/158 tests passent**
+
+---
 
 ### Phase J — Horaires périodiques (Work Schedules) (2026-05-27)
 

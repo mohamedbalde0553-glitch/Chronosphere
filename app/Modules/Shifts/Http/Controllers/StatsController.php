@@ -7,6 +7,7 @@ use App\Modules\Shifts\Models\Department;
 use App\Modules\Shifts\Models\Employee;
 use App\Modules\Shifts\Models\LeaveRequest;
 use App\Modules\Shifts\Models\Shift;
+use App\Modules\Shifts\Models\WorkSchedule;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -72,12 +73,13 @@ class StatsController extends Controller
 
         return response()->json([
             'week' => [
-                'total_minutes'    => $totalWeekMin,
-                'overtime_minutes' => $totalOvertimeMin,
-                'leaves_pending'   => $leavesPending,
-                'absenteeism_rate' => $absenteeismRate,
-                'employees_active' => $totalEmployees,
-                'departments'      => Department::count(),
+                'total_minutes'     => $totalWeekMin,
+                'overtime_minutes'  => $totalOvertimeMin,
+                'leaves_pending'    => $leavesPending,
+                'absenteeism_rate'  => $absenteeismRate,
+                'employees_active'  => $totalEmployees,
+                'departments'       => Department::count(),
+                'schedules_active'  => WorkSchedule::active()->forDate(now()->toDateString())->count(),
             ],
             'top5_employees' => $top5,
             'hours_by_dept'  => $byDept,

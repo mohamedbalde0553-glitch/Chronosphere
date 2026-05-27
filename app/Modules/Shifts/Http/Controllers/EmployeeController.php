@@ -7,12 +7,16 @@ use App\Models\User;
 use App\Modules\Shifts\Models\Department;
 use App\Modules\Shifts\Models\Employee;
 use App\Modules\Shifts\Models\Position;
+use App\Modules\Shifts\Models\WorkSchedule;
+use App\Modules\Shifts\Services\WorkScheduleService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class EmployeeController extends Controller
 {
+    public function __construct(private WorkScheduleService $scheduleService) {}
+
     public function index(): View
     {
         $employees   = Employee::with(['user', 'department', 'position'])->orderBy('id')->paginate(60);
@@ -21,6 +25,36 @@ class EmployeeController extends Controller
         $users       = User::doesntHave('employee')->orderBy('name')->get(['id', 'name', 'email']);
 
         return view('modules.shifts.employees.index', compact('employees', 'departments', 'positions', 'users'));
+    }
+
+    public function show(Employee $employee): View
+    {
+        $employee->load(['user', 'department', 'position', 'skills']);
+
+        $leaves = $employee->leaveRequests()
+            ->orderByDesc('start_date')
+            ->limit(20)
+            ->get();
+
+        $today          = now()->toDateString();
+        $activeSchedule = $this->findScheduleForEmployee($employee, $today);
+        $expectedMinutes = $activeSchedule
+            ? $this->scheduleService->calculateExpectedHours(
+                $employee->id,
+                now()->startOfMonth()->toDateString(),
+                now()->endOfMonth()->toDateString()
+            )
+            : 0;
+
+        $monthWorked = $employee->shifts()
+            ->whereMonth('start_at', now()->month)
+            ->whereYear('start_at', now()->year)
+            ->where('status', '!=', 'cancelled')
+            ->sum('worked_minutes');
+
+        return view('modules.shifts.employees.show', compact(
+            'employee', 'leaves', 'activeSchedule', 'expectedMinutes', 'monthWorked'
+        ));
     }
 
     public function store(Request $request): JsonResponse
@@ -65,5 +99,23 @@ class EmployeeController extends Controller
     {
         $employee->delete();
         return response()->json(['ok' => true]);
+    }
+
+    private function findScheduleForEmployee(Employee $employee, string $date): ?WorkSchedule
+    {
+        $override = $employee->scheduleOverrides()
+            ->where('override_start_date', '<=', $date)
+            ->where('override_end_date', '>=', $date)
+            ->first();
+
+        if ($override) {
+            return WorkSchedule::with('days')->find($override->work_schedule_id);
+        }
+
+        return WorkSchedule::with('days')
+            ->active()
+            ->forDate($date)
+            ->where('department_id', $employee->department_id)
+            ->first();
     }
 }
