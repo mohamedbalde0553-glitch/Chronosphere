@@ -2,7 +2,7 @@
 
 ## État global
 - Date de démarrage : 2026-05-26
-- Phase actuelle : **Phase K terminée** (Polish UI/UX Module 2)
+- Phase actuelle : **Phase L terminée** (Documentation finale)
 - Dernière session : 2026-05-27
 
 ## Décision stratégique importante
@@ -171,6 +171,36 @@ Patterns dark mode appliqués :
 - Fix phpunit.xml : `APP_URL=http://localhost` (évite 404 liés au sous-répertoire WAMP)
 - Fix RegistrationTest : `Role::create(['name'=>'cal_user'])` dans setUp (Spatie Permission)
 - Couverture : CRUD complet, validations, workflows métier (conflit réservation, approbation congé)
+
+### Phase L — Documentation finale (2026-05-27)
+
+#### L.1 — README.md (racine du projet)
+- Présentation, prérequis, installation complète pas-à-pas
+- Configuration (.env, BDD, rôles, seeders)
+- Démarrage serveur de développement
+- Aperçu des 5 modules + accès rapide API REST
+- Commandes utiles (tests, build, export)
+
+#### L.2 — docs/GUIDE_UTILISATEUR.md
+- Connexion et navigation (sidebar, dark mode, notifications)
+- Module Universitaire : emplois du temps, salles, matières, enseignants, groupes
+- Module Employés (RH) : trombinoscope, planning, congés, horaires périodiques, rapports
+- Module Agenda : calendriers personnels, événements récurrents
+- Module Réservation : ressources, réservations, workflow approbation
+- Module Projet : Kanban, Gantt, tâches, commentaires
+
+#### L.3 — docs/ARCHITECTURE_TECHNIQUE.md
+- Stack technique complète (Laravel 11, Tailwind v4, Alpine.js, FullCalendar v6…)
+- Architecture modulaire (App/Modules/*, ServiceProviders)
+- Schéma BDD (43 tables, préfixes par module)
+- API REST Sanctum : endpoints, authentification, rôles
+- Couche Services, Form Requests, Policies
+- Stratégie de tests (158 Feature tests PHPUnit)
+- Build frontend Vite + conventions CSS
+
+**Commit : docs(phase-l): README + GUIDE_UTILISATEUR + ARCHITECTURE_TECHNIQUE**
+
+---
 
 ### Phase K — Polish UI/UX Module 2 (2026-05-27)
 

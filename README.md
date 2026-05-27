@@ -1,58 +1,278 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# ChronoSphere
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Application web de **gestion du temps** couvrant 5 domaines : emplois du temps universitaires, gestion RH des employés, agenda personnel, réservation de ressources et suivi de projets.
 
-## About Laravel
+Développée avec **Laravel 11**, **Tailwind CSS v4**, **Alpine.js** et **FullCalendar v6**.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+---
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Prérequis
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+| Outil | Version minimale |
+|-------|-----------------|
+| PHP | 8.2+ (8.3 recommandé) |
+| Composer | 2.x |
+| Node.js | 18+ (24 recommandé) |
+| npm | 9+ |
+| MySQL | 8.0+ (9.1 testé) |
+| Serveur web | Apache 2.4 / WAMP64 / Nginx |
 
-## Learning Laravel
+Extensions PHP requises : `pdo_mysql`, `mbstring`, `openssl`, `tokenizer`, `xml`, `bcmath`, `fileinfo`, `gd`.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+---
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## Installation
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
-
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+### 1. Cloner le dépôt
 
 ```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+git clone <url-du-depot> chronosphere
+cd chronosphere
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+### 2. Dépendances PHP
 
-## Contributing
+```bash
+composer install
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### 3. Fichier d'environnement
 
-## Code of Conduct
+```bash
+cp .env.example .env
+php artisan key:generate
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+Modifier `.env` :
 
-## Security Vulnerabilities
+```env
+APP_NAME=ChronoSphere
+APP_URL=http://localhost/chronosphere/public   # adapter selon votre config
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=chronosphere
+DB_USERNAME=root
+DB_PASSWORD=
+```
 
-## License
+### 4. Base de données
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Créer la base :
+
+```sql
+CREATE DATABASE chronosphere CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+```
+
+Exécuter les migrations (57 tables) :
+
+```bash
+php artisan migrate
+```
+
+Peupler avec les données initiales (rôles, permissions, utilisateurs démo, données d'exemple) :
+
+```bash
+php artisan db:seed
+```
+
+### 5. Dépendances frontend
+
+```bash
+npm install
+npm run build
+```
+
+> En développement, utiliser `npm run dev` à la place de `npm run build` pour le rechargement à chaud.
+> Après avoir arrêté `npm run dev`, supprimer `public/hot` si le fichier persiste.
+
+---
+
+## Démarrage
+
+Avec WAMP/XAMPP, placer le projet dans `www/` et accéder à :
+
+```
+http://localhost/chronosphere/public
+```
+
+Avec le serveur intégré PHP :
+
+```bash
+php artisan serve
+# → http://localhost:8000
+```
+
+---
+
+## Comptes de démonstration
+
+| Rôle | Email | Mot de passe | Accès |
+|------|-------|--------------|-------|
+| Super Admin | `admin@chronosphere.local` | `password` | Tous les modules |
+| Utilisateur Démo | `demo@chronosphere.local` | `password` | Agenda, Timetable (lecture), Projet |
+
+---
+
+## Modules
+
+### 1. Universitaire (Timetable)
+Gestion complète des emplois du temps.
+- **Entités** : Facultés, Niveaux, Années académiques, Salles, Matières, Groupes, Enseignants
+- **Planning** : Grille hebdomadaire FullCalendar avec drag-and-drop
+- **Conflits** : Détection automatique (salle / enseignant / groupe)
+- **Export** : PDF (jsPDF), Excel (Maatwebsite)
+- Accès : `/timetable`
+
+### 2. Employés — RH (Shifts)
+Gestion des ressources humaines et de la planification.
+- **Trombinoscope** : cards employés avec filtres et fiche détaillée (4 onglets)
+- **Planning** : FullCalendar timeGrid avec gestion des shifts
+- **Horaires périodiques** : modèles hebdomadaires avec overrides par employé
+- **Congés** : workflow Demande → Approbation/Rejet avec annulation automatique des shifts
+- **Rapports** : KPIs + export PDF/Excel par département et période
+- **API REST** : endpoints complets + authentification Sanctum
+- Accès : `/shifts`
+
+### 3. Agenda (Calendar)
+Calendriers personnels et partagés.
+- Multi-calendriers avec couleurs personnalisées
+- Événements récurrents
+- Vues : semaine, mois, liste
+- Accès : `/calendar`
+
+### 4. Réservation (Booking)
+Réservation de salles et ressources partagées.
+- **Ressources** : catégorisées, avec capacité et lieu
+- **Calendrier** : vue par ressource ou globale
+- **Workflow** : `pending → confirmed / rejected / cancelled`
+- **Approbation** : manuelle ou automatique selon la ressource
+- Accès : `/booking`
+
+### 5. Projet / Gantt
+Suivi de projets avec Kanban et diagramme de Gantt.
+- **Kanban** : colonnes personnalisées, drag-and-drop SortableJS
+- **Gantt** : frappe-gantt avec redimensionnement des barres
+- **Tâches** : assignation, priorité, progression (0–100 %), commentaires
+- Accès : `/project`
+
+---
+
+## API REST
+
+L'API REST (Module 2 — Employés) est documentée dans [`docs/API_DOCUMENTATION.md`](docs/API_DOCUMENTATION.md).
+
+**Base URL** : `/api`
+
+**Authentification** :
+```http
+POST /api/auth/login
+Content-Type: application/json
+{ "email": "admin@chronosphere.local", "password": "password" }
+```
+
+Réponse : `{ "token": "...", "user": {...} }`
+
+Utilisation du token :
+```http
+Authorization: Bearer <token>
+```
+
+**Endpoints principaux** :
+
+| Méthode | URI | Description |
+|---------|-----|-------------|
+| `POST` | `/api/auth/login` | Connexion, retourne un token Bearer |
+| `POST` | `/api/auth/logout` | Révocation du token |
+| `GET` | `/api/employees` | Liste paginée des employés |
+| `POST` | `/api/employees` | Créer un employé |
+| `GET` | `/api/employees/{id}` | Détail d'un employé |
+| `PUT` | `/api/employees/{id}` | Modifier un employé |
+| `DELETE` | `/api/employees/{id}` | Supprimer (soft delete) |
+| `GET` | `/api/employees/{id}/shifts` | Shifts d'un employé |
+| `GET` | `/api/employees/{id}/leave-requests` | Congés d'un employé |
+| `GET` | `/api/work-schedules` | Liste des horaires périodiques |
+| `POST` | `/api/work-schedules/{id}/generate-shifts` | Générer des shifts depuis un horaire |
+| `GET` | `/api/employees/{id}/schedule` | Horaire actif d'un employé |
+
+---
+
+## Tests
+
+```bash
+php artisan test
+```
+
+**158 tests Feature** couvrant :
+- Auth API (login, logout, token invalide)
+- CRUD Employés + sous-ressources (shifts, congés)
+- Contrôle d'accès par rôle (super_admin / hr_manager / hr_employee)
+- Horaires périodiques (CRUD, génération de shifts, overrides)
+- Timetable, Booking, Projet, Shifts web
+
+---
+
+## Commandes utiles
+
+```bash
+# Vider tous les caches Laravel
+php artisan optimize:clear
+
+# Rebuild frontend en production
+npm run build
+
+# Dev server avec hot reload
+npm run dev
+
+# Lancer migrations + seeders (reset complet)
+php artisan migrate:fresh --seed
+
+# Liste des routes
+php artisan route:list
+
+# Lancer les tests
+php artisan test
+```
+
+---
+
+## Structure du projet
+
+```
+app/
+├── Http/Controllers/Api/      # Contrôleurs API REST (Sanctum)
+├── Modules/
+│   ├── Calendar/              # Module Agenda
+│   ├── Timetable/             # Module Universitaire
+│   ├── Shifts/                # Module RH / Employés
+│   │   └── Services/          # WorkScheduleService, ShiftService…
+│   ├── Booking/               # Module Réservation
+│   └── Project/               # Module Projet / Gantt
+├── Policies/                  # EmployeePolicy (contrôle accès API)
+└── Providers/                 # AppServiceProvider + ModuleServiceProviders
+
+resources/
+├── css/app.css                # Tailwind v4 + utilitaires globaux
+├── js/
+│   ├── app.js                 # Alpine.js init
+│   └── {module}.js            # JS par module (FullCalendar, SortableJS…)
+└── views/
+    ├── layouts/               # app.blade.php, guest.blade.php
+    ├── dashboard.blade.php
+    └── modules/{module}/      # Vues par module
+
+routes/
+├── web.php                    # Routes auth + dashboard
+├── api.php                    # Routes API REST
+└── modules/                   # Routes web par module
+
+tests/Feature/                 # 158 tests PHPUnit
+docs/                          # Documentation technique
+```
+
+---
+
+## Licence
+
+Projet académique — usage interne.
