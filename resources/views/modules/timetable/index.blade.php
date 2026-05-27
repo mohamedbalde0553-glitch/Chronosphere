@@ -10,7 +10,7 @@
             ['label'=>'Enseignants',  'value'=>$stats['teachers'], 'icon'=>'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z', 'color'=>'amber'],
             ['label'=>'Séances/sem.', 'value'=>$stats['sessions'], 'icon'=>'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z', 'color'=>'indigo'],
         ] as $s)
-        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
+        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4 card-hover">
             <div class="flex items-center gap-3">
                 <div class="w-9 h-9 rounded-lg bg-{{ $s['color'] }}-50 dark:bg-{{ $s['color'] }}-900/20 flex items-center justify-center">
                     <svg class="w-5 h-5 text-{{ $s['color'] }}-600 dark:text-{{ $s['color'] }}-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -29,7 +29,7 @@
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
         {{-- Quick nav --}}
-        <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm p-5">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm p-5 card-hover">
             <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-4">Gestion</h3>
             <nav class="space-y-1">
                 @foreach([
@@ -52,7 +52,7 @@
         </div>
 
         {{-- Upcoming sessions --}}
-        <div class="lg:col-span-2 bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm p-5">
+        <div class="lg:col-span-2 bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm p-5 card-hover">
             <div class="flex items-center justify-between mb-4">
                 <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300">Prochaines séances (7 jours)</h3>
                 <a href="{{ route('timetable.schedule') }}" class="text-xs text-blue-600 dark:text-blue-400 hover:text-blue-700 font-medium">Voir tout →</a>

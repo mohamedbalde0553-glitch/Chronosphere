@@ -23,7 +23,7 @@
             </h3>
             <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
                 @foreach($items as $skill)
-                <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4 flex flex-col gap-2 hover:shadow-md transition-shadow">
+                <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4 flex flex-col gap-2 card-hover">
                     <div class="flex items-start justify-between gap-2">
                         <span class="text-sm font-semibold text-gray-800 dark:text-gray-200 leading-tight">{{ $skill->name }}</span>
                         <div class="flex gap-1 shrink-0">

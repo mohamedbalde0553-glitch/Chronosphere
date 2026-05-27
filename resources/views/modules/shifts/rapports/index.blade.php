@@ -80,19 +80,19 @@
         $otMin     = $stats['totalOvertime'] % 60;
     @endphp
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
+        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4 card-hover">
             <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">Heures travaillées</p>
             <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ $totalH }}h{{ sprintf('%02d', $totalMin) }}</p>
         </div>
-        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
+        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4 card-hover">
             <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">Heures supplémentaires</p>
             <p class="text-2xl font-bold text-amber-600 dark:text-amber-400">{{ $otH }}h{{ sprintf('%02d', $otMin) }}</p>
         </div>
-        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
+        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4 card-hover">
             <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">Employés actifs</p>
             <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ $stats['totalEmployees'] }}</p>
         </div>
-        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
+        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4 card-hover">
             <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">Taux absentéisme</p>
             <p class="text-2xl font-bold {{ $stats['absenteeism'] > 10 ? 'text-red-600 dark:text-red-400' : 'text-emerald-600 dark:text-emerald-400' }}">
                 {{ $stats['absenteeism'] }} %
@@ -102,11 +102,12 @@
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
         {{-- Top 5 employés --}}
-        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden card-hover">
             <div class="px-5 py-3 border-b border-gray-100 dark:border-gray-700">
                 <h3 class="text-sm font-semibold text-gray-900 dark:text-white">Top 5 employés</h3>
             </div>
-            <table class="w-full text-sm">
+            <div class="overflow-x-auto">
+            <table class="w-full text-sm min-w-[400px]">
                 <thead>
                     <tr class="border-b border-gray-100 dark:border-gray-700">
                         <th class="text-left px-5 py-2.5 text-xs font-medium text-gray-500 dark:text-gray-400">Employé</th>
@@ -133,14 +134,16 @@
                     @endforelse
                 </tbody>
             </table>
+            </div>
         </div>
 
         {{-- Par département --}}
-        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden card-hover">
             <div class="px-5 py-3 border-b border-gray-100 dark:border-gray-700">
                 <h3 class="text-sm font-semibold text-gray-900 dark:text-white">Heures par département</h3>
             </div>
-            <table class="w-full text-sm">
+            <div class="overflow-x-auto">
+            <table class="w-full text-sm min-w-[400px]">
                 <thead>
                     <tr class="border-b border-gray-100 dark:border-gray-700">
                         <th class="text-left px-5 py-2.5 text-xs font-medium text-gray-500 dark:text-gray-400">Département</th>
@@ -162,6 +165,7 @@
                     @endforelse
                 </tbody>
             </table>
+            </div>
         </div>
     </div>
 

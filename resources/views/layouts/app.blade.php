@@ -13,9 +13,9 @@
         if (localStorage.getItem('darkMode') === 'true') document.documentElement.classList.add('dark');
     </script>
 </head>
-<body class="h-full bg-gray-50 dark:bg-gray-950 font-sans antialiased transition-colors duration-200"
+<body class="h-full bg-gray-50 dark:bg-gray-950 font-sans antialiased"
       x-data="{
-          sidebar: true,
+          sidebar: window.innerWidth >= 1024,
           mobileNav: false,
           darkMode: localStorage.getItem('darkMode') === 'true',
           toggleDark() {
@@ -39,19 +39,20 @@
     }">
 
     {{-- Logo --}}
-    <div class="flex items-center h-16 px-4 border-b border-gray-700 shrink-0">
-        <div class="flex items-center gap-3 min-w-0">
-            <div class="shrink-0 w-8 h-8 rounded-lg bg-indigo-500 flex items-center justify-center">
+    <div class="flex items-center h-16 px-4 border-b border-gray-700/80 shrink-0">
+        <div class="flex items-center gap-3 min-w-0 flex-1">
+            <div class="shrink-0 w-8 h-8 rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-500/30">
                 <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                     <circle cx="12" cy="12" r="10"/><polyline points="12,6 12,12 16,14"/>
                 </svg>
             </div>
             <span class="text-white font-bold text-lg tracking-tight truncate" x-show="sidebar" x-cloak>ChronoSphere</span>
         </div>
-        <button @click="sidebar=!sidebar" class="ml-auto text-gray-400 hover:text-white shrink-0">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <button @click="sidebar=!sidebar"
+                class="hidden md:flex w-7 h-7 items-center justify-center rounded-lg text-gray-500 hover:text-white hover:bg-gray-700/60 transition-colors shrink-0">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                 <path x-show="sidebar" stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
-                <path x-show="!sidebar" stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+                <path x-show="!sidebar" x-cloak stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
             </svg>
         </button>
     </div>
@@ -61,76 +62,77 @@
 
         @php $isDash = request()->routeIs('dashboard'); @endphp
         <a href="{{ route('dashboard') }}"
-           class="group flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors
-                  {{ $isDash ? 'bg-gray-700 text-white' : 'text-gray-400 hover:bg-gray-800 hover:text-white' }}">
-            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+           title="Tableau de bord"
+           class="group flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150
+                  {{ $isDash ? 'bg-white/10 text-white shadow-sm' : 'text-gray-400 hover:bg-white/5 hover:text-white' }}">
+            <svg class="w-5 h-5 shrink-0 {{ $isDash ? 'text-white' : 'text-gray-500 group-hover:text-gray-300' }}" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0h6"/>
             </svg>
-            <span x-show="sidebar" x-cloak>Tableau de bord</span>
+            <span x-show="sidebar" x-cloak class="truncate">Tableau de bord</span>
         </a>
 
-        <div class="my-3 border-t border-gray-700" x-show="sidebar" x-cloak></div>
-        <p class="px-3 py-1 text-xs font-semibold text-gray-500 uppercase tracking-wider" x-show="sidebar" x-cloak>Modules</p>
+        <div class="my-3 border-t border-gray-700/60" x-show="sidebar" x-cloak></div>
+        <p class="px-3 py-1 text-[10px] font-bold text-gray-600 uppercase tracking-widest" x-show="sidebar" x-cloak>Modules</p>
 
         @can('timetable.view')
         @php $isUni = request()->routeIs('timetable.*'); @endphp
-        <a href="{{ route('timetable.index') }}"
-           class="group flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors
-                  {{ $isUni ? 'bg-blue-600 text-white' : 'text-gray-400 hover:bg-gray-800 hover:text-white' }}">
-            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <a href="{{ route('timetable.index') }}" title="Universitaire"
+           class="group flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150
+                  {{ $isUni ? 'bg-blue-600/90 text-white shadow-sm shadow-blue-500/20' : 'text-gray-400 hover:bg-white/5 hover:text-white' }}">
+            <svg class="w-5 h-5 shrink-0 {{ $isUni ? 'text-white' : 'text-gray-500 group-hover:text-blue-400' }}" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 14l9-5-9-5-9 5 9 5z"/>
                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 14l6.16-3.422A12.083 12.083 0 0112 21.5a12.083 12.083 0 01-6.16-10.922L12 14z"/>
             </svg>
-            <span x-show="sidebar" x-cloak>Universitaire</span>
+            <span x-show="sidebar" x-cloak class="truncate">Universitaire</span>
         </a>
         @endcan
 
         @can('shifts.view')
         @php $isHr = request()->routeIs('shifts.*'); @endphp
-        <a href="{{ route('shifts.index') }}"
-           class="group flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors
-                  {{ $isHr ? 'bg-emerald-600 text-white' : 'text-gray-400 hover:bg-gray-800 hover:text-white' }}">
-            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <a href="{{ route('shifts.index') }}" title="Employés"
+           class="group flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150
+                  {{ $isHr ? 'bg-emerald-600/90 text-white shadow-sm shadow-emerald-500/20' : 'text-gray-400 hover:bg-white/5 hover:text-white' }}">
+            <svg class="w-5 h-5 shrink-0 {{ $isHr ? 'text-white' : 'text-gray-500 group-hover:text-emerald-400' }}" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
             </svg>
-            <span x-show="sidebar" x-cloak>Employés</span>
+            <span x-show="sidebar" x-cloak class="truncate">Employés</span>
         </a>
         @endcan
 
         @can('calendar.view')
         @php $isCal = request()->routeIs('calendar.*'); @endphp
-        <a href="{{ route('calendar.index') }}"
-           class="group flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors
-                  {{ $isCal ? 'bg-violet-600 text-white' : 'text-gray-400 hover:bg-gray-800 hover:text-white' }}">
-            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <a href="{{ route('calendar.index') }}" title="Agenda"
+           class="group flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150
+                  {{ $isCal ? 'bg-violet-600/90 text-white shadow-sm shadow-violet-500/20' : 'text-gray-400 hover:bg-white/5 hover:text-white' }}">
+            <svg class="w-5 h-5 shrink-0 {{ $isCal ? 'text-white' : 'text-gray-500 group-hover:text-violet-400' }}" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                 <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
             </svg>
-            <span x-show="sidebar" x-cloak>Agenda</span>
+            <span x-show="sidebar" x-cloak class="truncate">Agenda</span>
         </a>
         @endcan
 
         @can('booking.view')
         @php $isBook = request()->routeIs('booking.*'); @endphp
-        <a href="{{ route('booking.index') }}"
-           class="group flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors
-                  {{ $isBook ? 'bg-orange-600 text-white' : 'text-gray-400 hover:bg-gray-800 hover:text-white' }}">
-            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <a href="{{ route('booking.index') }}" title="Réservation"
+           class="group flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150
+                  {{ $isBook ? 'bg-orange-600/90 text-white shadow-sm shadow-orange-500/20' : 'text-gray-400 hover:bg-white/5 hover:text-white' }}">
+            <svg class="w-5 h-5 shrink-0 {{ $isBook ? 'text-white' : 'text-gray-500 group-hover:text-orange-400' }}" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
             </svg>
-            <span x-show="sidebar" x-cloak>Réservation</span>
+            <span x-show="sidebar" x-cloak class="truncate">Réservation</span>
         </a>
         @endcan
 
         @can('project.view')
         @php $isProj = request()->routeIs('project.*'); @endphp
-        <a href="{{ route('project.index') }}"
-           class="group flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors
-                  {{ $isProj ? 'bg-indigo-600 text-white' : 'text-gray-400 hover:bg-gray-800 hover:text-white' }}">
-            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <a href="{{ route('project.index') }}" title="Projet / Gantt"
+           class="group flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150
+                  {{ $isProj ? 'bg-indigo-600/90 text-white shadow-sm shadow-indigo-500/20' : 'text-gray-400 hover:bg-white/5 hover:text-white' }}">
+            <svg class="w-5 h-5 shrink-0 {{ $isProj ? 'text-white' : 'text-gray-500 group-hover:text-indigo-400' }}" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                 <line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/>
                 <line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/>
             </svg>
-            <span x-show="sidebar" x-cloak>Projet / Gantt</span>
+            <span x-show="sidebar" x-cloak class="truncate">Projet / Gantt</span>
         </a>
         @endcan
 

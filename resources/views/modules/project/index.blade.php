@@ -11,7 +11,7 @@
                 ['label'=>'Tâches en retard',     'value'=>$stats['overdue_tasks'],'color'=>'red'],
                 ['label'=>'Mes tâches ouvertes',  'value'=>$stats['my_tasks'],     'color'=>'amber'],
             ] as $s)
-            <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
+            <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4 card-hover">
                 <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ $s['value'] }}</p>
                 <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{{ $s['label'] }}</p>
             </div>
@@ -22,7 +22,7 @@
         <div class="flex items-center justify-between mb-5">
             <h2 class="text-lg font-bold text-gray-900 dark:text-white">Tous les projets</h2>
             <button @click="openCreate()"
-                    class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-lg">
+                    class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white text-sm font-semibold rounded-lg transition-all">
                 + Nouveau projet
             </button>
         </div>
@@ -42,7 +42,7 @@
                 $statusColors = ['active'=>'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300','on_hold'=>'bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300','completed'=>'bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300','archived'=>'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400'];
                 $statusLabels = ['active'=>'Actif','on_hold'=>'En pause','completed'=>'Terminé','archived'=>'Archivé'];
             @endphp
-            <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow p-5 flex flex-col gap-4">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm p-5 flex flex-col gap-4 card-hover">
                 <div class="flex items-start justify-between gap-3">
                     <div class="flex items-center gap-3 min-w-0">
                         <div class="w-3 h-3 rounded-full shrink-0" style="background:{{ $project->color ?? '#4F46E5' }}"></div>

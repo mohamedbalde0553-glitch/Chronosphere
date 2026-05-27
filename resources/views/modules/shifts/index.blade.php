@@ -37,7 +37,7 @@
         {{-- ===== KPI CARDS ===== --}}
         <div class="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
 
-            <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
+            <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4 card-hover">
                 <div class="flex items-center justify-between mb-3">
                     <span class="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Heures / semaine</span>
                     <div class="w-8 h-8 rounded-lg bg-emerald-50 dark:bg-emerald-900/30 flex items-center justify-center">
@@ -48,7 +48,7 @@
                 <p class="text-xs text-gray-500 dark:text-gray-400 mt-1" x-text="stats ? stats.week.employees_active + ' employés actifs' : ''"></p>
             </div>
 
-            <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
+            <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4 card-hover">
                 <div class="flex items-center justify-between mb-3">
                     <span class="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Heures sup</span>
                     <div class="w-8 h-8 rounded-lg bg-orange-50 dark:bg-orange-900/30 flex items-center justify-center">
@@ -59,7 +59,7 @@
                 <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">À valider / payer</p>
             </div>
 
-            <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
+            <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4 card-hover">
                 <div class="flex items-center justify-between mb-3">
                     <span class="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Congés en attente</span>
                     <div class="w-8 h-8 rounded-lg bg-amber-50 dark:bg-amber-900/30 flex items-center justify-center">
@@ -72,7 +72,7 @@
                 </p>
             </div>
 
-            <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
+            <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4 card-hover">
                 <div class="flex items-center justify-between mb-3">
                     <span class="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Absentéisme</span>
                     <div class="w-8 h-8 rounded-lg bg-red-50 dark:bg-red-900/30 flex items-center justify-center">
@@ -83,7 +83,7 @@
                 <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Taux cette semaine</p>
             </div>
 
-            <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
+            <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4 card-hover">
                 <div class="flex items-center justify-between mb-3">
                     <span class="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Horaires actifs</span>
                     <div class="w-8 h-8 rounded-lg bg-violet-50 dark:bg-violet-900/30 flex items-center justify-center">
@@ -102,7 +102,7 @@
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-6">
 
             {{-- Graphique heures par département --}}
-            <div class="lg:col-span-2 bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm p-5">
+            <div class="lg:col-span-2 bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm p-5 card-hover">
                 <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-4">Heures travaillées par département (semaine)</h3>
                 <div class="relative h-52">
                     <canvas id="deptChart"></canvas>
@@ -111,7 +111,7 @@
             </div>
 
             {{-- Nav modules --}}
-            <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm p-5">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm p-5 card-hover">
                 <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-4">Accès rapide</h3>
                 <nav class="space-y-1">
                     @foreach([
@@ -140,7 +140,7 @@
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
 
             {{-- Top 5 employés --}}
-            <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm p-5">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm p-5 card-hover">
                 <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-4">Top 5 — Heures cette semaine</h3>
                 <div x-show="!stats" class="space-y-3">
                     @for($i=0;$i<5;$i++)
@@ -169,7 +169,7 @@
             </div>
 
             {{-- Prochains shifts --}}
-            <div class="lg:col-span-2 bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm p-5">
+            <div class="lg:col-span-2 bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm p-5 card-hover">
                 <div class="flex items-center justify-between mb-4">
                     <h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300">Prochains shifts (7 jours)</h3>
                     <a href="{{ route('shifts.planning') }}" class="text-xs text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 font-medium">Voir le planning →</a>

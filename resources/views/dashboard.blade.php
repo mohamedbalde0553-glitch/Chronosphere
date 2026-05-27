@@ -10,7 +10,7 @@
 
         @php $canUni = auth()->user()->can('timetable.view'); @endphp
         <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden
-                    {{ $canUni ? 'hover:shadow-md transition-shadow' : 'opacity-60' }}">
+                    {{ $canUni ? 'card-hover' : 'opacity-60' }}">
             <div class="h-1.5 bg-blue-600"></div>
             <div class="p-6">
                 <div class="flex items-start justify-between mb-4">
@@ -36,7 +36,7 @@
 
         @php $canHr = auth()->user()->can('shifts.view'); @endphp
         <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden
-                    {{ $canHr ? 'hover:shadow-md transition-shadow' : 'opacity-60' }}">
+                    {{ $canHr ? 'card-hover' : 'opacity-60' }}">
             <div class="h-1.5 bg-emerald-600"></div>
             <div class="p-6">
                 <div class="flex items-start justify-between mb-4">
@@ -61,7 +61,7 @@
 
         @php $canCal = auth()->user()->can('calendar.view'); @endphp
         <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden
-                    {{ $canCal ? 'hover:shadow-md transition-shadow' : 'opacity-60' }}">
+                    {{ $canCal ? 'card-hover' : 'opacity-60' }}">
             <div class="h-1.5 bg-violet-600"></div>
             <div class="p-6">
                 <div class="flex items-start justify-between mb-4">
@@ -86,7 +86,7 @@
 
         @php $canBook = auth()->user()->can('booking.view'); @endphp
         <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden
-                    {{ $canBook ? 'hover:shadow-md transition-shadow' : 'opacity-60' }}">
+                    {{ $canBook ? 'card-hover' : 'opacity-60' }}">
             <div class="h-1.5 bg-orange-500"></div>
             <div class="p-6">
                 <div class="flex items-start justify-between mb-4">
@@ -111,7 +111,7 @@
 
         @php $canProj = auth()->user()->can('project.view'); @endphp
         <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden
-                    {{ $canProj ? 'hover:shadow-md transition-shadow' : 'opacity-60' }}">
+                    {{ $canProj ? 'card-hover' : 'opacity-60' }}">
             <div class="h-1.5 bg-indigo-600"></div>
             <div class="p-6">
                 <div class="flex items-start justify-between mb-4">

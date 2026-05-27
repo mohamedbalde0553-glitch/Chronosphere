@@ -52,7 +52,7 @@
         {{-- Trombinoscope --}}
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             <template x-for="emp in filtered" :key="emp.id">
-                <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow overflow-hidden flex flex-col">
+                <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden flex flex-col card-hover">
 
                     {{-- Color bar by department --}}
                     <div class="h-1.5 bg-emerald-500"></div>

@@ -37,3 +37,111 @@
     --color-proj-accent: #06B6D4;
     --color-proj-light:  #E0E7FF;
 }
+
+/* ============================================================
+   COMPOSANTS GLOBAUX
+   ============================================================ */
+
+/* --- Carte avec effet de survol (lift + ombre) --- */
+@layer components {
+    .card-hover {
+        transition: transform 0.18s ease, box-shadow 0.18s ease;
+        will-change: transform;
+    }
+    .card-hover:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 24px -4px rgb(0 0 0 / 0.12), 0 2px 8px -2px rgb(0 0 0 / 0.08);
+    }
+    .dark .card-hover:hover {
+        box-shadow: 0 8px 24px -4px rgb(0 0 0 / 0.4), 0 2px 8px -2px rgb(0 0 0 / 0.3);
+    }
+
+    /* Bouton — feedback clic */
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.375rem;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        font-size: 0.875rem;
+        transition: background-color 0.15s, transform 0.1s, box-shadow 0.15s;
+    }
+    .btn:active { transform: scale(0.96); }
+
+    /* Ligne de tableau — hover discret */
+    .tr-hover:hover {
+        background-color: rgb(249 250 251);
+    }
+    .dark .tr-hover:hover {
+        background-color: rgb(55 65 81 / 0.4);
+    }
+
+    /* Input — focus ring uniforme */
+    .form-control {
+        padding: 0.375rem 0.75rem;
+        border: 1px solid rgb(209 213 219);
+        border-radius: 0.5rem;
+        font-size: 0.875rem;
+        background: white;
+        transition: border-color 0.15s, box-shadow 0.15s;
+        outline: none;
+    }
+    .form-control:focus {
+        border-color: rgb(99 102 241);
+        box-shadow: 0 0 0 3px rgb(99 102 241 / 0.15);
+    }
+    .dark .form-control {
+        background: rgb(55 65 81);
+        border-color: rgb(75 85 99);
+        color: white;
+    }
+    .dark .form-control:focus {
+        border-color: rgb(129 140 248);
+        box-shadow: 0 0 0 3px rgb(129 140 248 / 0.2);
+    }
+}
+
+/* --- Scrollbar fine et discrète --- */
+@layer base {
+    * {
+        scrollbar-width: thin;
+        scrollbar-color: rgb(156 163 175) transparent;
+    }
+    *::-webkit-scrollbar { width: 5px; height: 5px; }
+    *::-webkit-scrollbar-track { background: transparent; }
+    *::-webkit-scrollbar-thumb {
+        background: rgb(156 163 175);
+        border-radius: 9999px;
+    }
+    .dark *::-webkit-scrollbar-thumb { background: rgb(75 85 99); }
+
+    /* Transitions fluides sur les éléments interactifs */
+    a, button { transition-duration: 150ms; }
+}
+
+/* --- Conteneur de table responsive --- */
+.table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-radius: 0.75rem;
+    border: 1px solid rgb(229 231 235);
+}
+.dark .table-wrap {
+    border-color: rgb(55 65 81);
+}
+
+/* --- Animation de skeleton loader --- */
+@keyframes shimmer {
+    0%   { background-position: -400px 0; }
+    100% { background-position: 400px 0; }
+}
+.skeleton {
+    background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%);
+    background-size: 400px 100%;
+    animation: shimmer 1.4s ease infinite;
+    border-radius: 0.375rem;
+}
+.dark .skeleton {
+    background: linear-gradient(90deg, #374151 25%, #4b5563 50%, #374151 75%);
+    background-size: 400px 100%;
+}

@@ -20,7 +20,8 @@
         </div>
 
         <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
-            <table class="w-full text-sm">
+            <div class="overflow-x-auto">
+            <table class="w-full text-sm min-w-[560px]">
                 <thead class="bg-gray-50 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600">
                     <tr>
                         <th class="text-left px-4 py-3 font-semibold text-gray-600 dark:text-gray-400">Couleur</th>
@@ -60,6 +61,7 @@
                     @endforelse
                 </tbody>
             </table>
+            </div>
             @if($shiftTypes->hasPages())
             <div class="px-4 py-3 border-t border-gray-100 dark:border-gray-700">{{ $shiftTypes->links() }}</div>
             @endif
