@@ -1,0 +1,18 @@
+<?php
+
+namespace App\Http\Resources\Api;
+
+use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\JsonResource;
+
+class PositionResource extends JsonResource
+{
+    public function toArray(Request $request): array
+    {
+        return [
+            'id'               => $this->id,
+            'title'            => $this->title,
+            'base_hourly_rate' => $this->base_hourly_rate,
+        ];
+    }
+}

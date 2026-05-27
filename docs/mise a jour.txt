@@ -1,0 +1,25 @@
+Mise à jour stratégique importante :
+
+L'application Android native (Java) sera développée APRÈS le web, 
+et UNIQUEMENT pour le Module 2 (Employés).
+
+Cela signifie :
+1. Continue la Phase E (notifications + rapports) en te concentrant 
+   sur le Module 2.
+
+2. À la fin de la Phase E, prépare une Phase F : API REST 
+   complète pour le Module 2 uniquement.
+   - Installation Laravel Sanctum
+   - Endpoints API authentifiés
+   - API Resources pour formater les réponses JSON
+   - Documentation des endpoints
+
+3. Les API REST des autres modules ne sont PAS nécessaires.
+
+4. Structure ton code Module 2 pour que la logique métier soit dans 
+   des Services (pas dans les contrôleurs), comme ça les contrôleurs 
+   web ET les contrôleurs API partagent la même logique.
+
+5. Mets à jour docs/STATUS.md avec cette information importante.
+
+Continue la Phase E comme prévu.

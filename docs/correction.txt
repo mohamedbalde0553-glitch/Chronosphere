@@ -1,0 +1,220 @@
+═══════════════════════════════════════════════════════════════
+🛠️ CHRONOSPHERE — MISSION CORRECTION + PERFECTIONNEMENT
+═══════════════════════════════════════════════════════════════
+
+Salut Claude Code,
+
+J'ai testé l'application et identifié plusieurs problèmes à corriger. 
+De plus, mon prof a tranché : le MODULE 2 (Employés) devient le cœur 
+du projet, donc il doit être PARFAIT (fonctionnalités riches + design pro).
+
+🚨 ORDRE STRICT À RESPECTER :
+Tu vas exécuter les 3 phases CI-DESSOUS dans l'ordre. À la fin de 
+chaque phase, tu fais un commit Git et tu attends ma validation 
+avant de passer à la suivante.
+
+────────────────────────────────────────────────
+🚑 PHASE A — CORRECTIONS URGENTES (priorité 1)
+────────────────────────────────────────────────
+
+A.1 — BUG MODULE EMPLOYÉS (CRITIQUE)
+Erreur actuelle :
+SQLSTATE[42S22] : Colonne 'status' inconnue dans la WHERE clause
+SQL: select count(*) from `hr_employees` where `status` = active
+
+Cause : le code utilise une colonne `status` qui n'existe pas dans 
+la table `hr_employees`. La colonne réelle est probablement `is_active`.
+
+Actions :
+1. Lance : php artisan tinker
+   puis : Schema::getColumnListing('hr_employees')
+   pour voir les colonnes réelles
+2. Cherche tous les fichiers qui utilisent `status` sur hr_employees :
+   - Contrôleurs Module 2
+   - Models Employee
+   - Vues Blade Module 2
+3. Soit :
+   a) Renomme `is_active` en `status` (avec migration) si tu juges 
+      que `status` est plus pertinent
+   b) Ou corrige le code pour utiliser `is_active` à la place
+4. Choisis la solution la plus propre et applique-la partout
+5. Teste : http://127.0.0.1:8000/shifts ne doit plus planter
+6. Commit : "fix(hr): correction colonne status manquante hr_employees"
+
+A.2 — RESPONSIVE GÉNÉRAL
+Problèmes :
+- Les cards du dashboard débordent sur petit écran
+- Les textes dépassent des conteneurs
+- Pas d'adaptation mobile/tablette
+
+Actions :
+1. Audite resources/views/dashboard.blade.php
+2. Audite tous les layouts dans resources/views/layouts/
+3. Applique partout les classes responsive Tailwind :
+   - Grilles : grid-cols-1 md:grid-cols-2 lg:grid-cols-3
+   - Padding : p-4 md:p-6 lg:p-8
+   - Textes : text-sm md:text-base
+   - Cards : break-words, overflow-hidden, truncate si nécessaire
+4. La sidebar doit devenir un menu hamburger sur mobile (< 768px)
+5. Teste avec les outils DevTools Chrome en mode mobile (375px) et 
+   tablette (768px)
+6. Commit : "fix(ui): responsive complet sur tous les modules"
+
+A.3 — BUG SURVOL DES CARDS
+Les cards bougent désagréablement au survol du curseur.
+
+Action : 
+1. Trouve les classes de hover dans les vues
+2. Remplace les effets agressifs (translate, scale > 1.05) par des 
+   effets subtils :
+   - hover:shadow-lg (au lieu de hover:scale-105)
+   - transition-shadow duration-200
+   - Pas de translate-y au survol
+3. Commit : "fix(ui): animations de survol plus subtiles"
+
+A.4 — BUG AGENDA : événement en plein écran
+Quand on clique sur un événement créé, il s'ouvre en prenant tout 
+l'écran et on ne voit pas les boutons Modifier/Supprimer.
+
+Actions :
+1. Trouve le modal/vue d'affichage d'un événement (probablement 
+   resources/views/modules/calendar/events/show.blade.php)
+2. Vérifie :
+   - Le modal doit être de taille raisonnable (max-w-2xl par exemple)
+   - Les boutons Modifier/Supprimer doivent être visibles SANS scroll
+   - Bouton Fermer en haut à droite
+3. Pattern souhaité : 
+   - Modal centré
+   - Header : titre + bouton fermer
+   - Body : détails de l'événement (scrollable si besoin)
+   - Footer FIXE : boutons "Modifier", "Supprimer", "Fermer"
+4. Commit : "fix(calendar): refonte de l'affichage des événements"
+
+⏸️ STOP après Phase A. Attends ma validation.
+
+────────────────────────────────────────────────
+💎 PHASE B — PERFECTIONNEMENT MODULE 2 EMPLOYÉS
+────────────────────────────────────────────────
+
+CONTEXTE : Le prof a choisi le Module Employés comme cœur du projet. 
+Il doit être PARFAIT : riche en fonctionnalités, design professionnel, 
+données réalistes pour la démo.
+
+B.1 — AUDIT COMPLET DU MODULE
+1. Liste tous les contrôleurs, models, vues, routes du Module 2
+2. Compare avec les fonctionnalités décrites dans 
+   docs/ChronoSphere_Cahier_des_Charges.docx (section Module 2)
+3. Identifie ce qui manque ou est incomplet
+4. Fais-moi un rapport avant de continuer
+
+⏸️ STOP. Attends ma validation du rapport.
+
+B.2 — FONCTIONNALITÉS À ENRICHIR (selon rapport)
+Vérifie et complète si nécessaire :
+- ✅ CRUD complet : Départements, Postes, Employés, Compétences
+- ✅ Gestion des shifts (planning hebdo/mensuel)
+- ✅ Drag & drop pour déplacer les shifts dans le calendrier
+- ✅ Gestion des congés (demande, validation hiérarchique, refus)
+- ✅ Calcul automatique heures travaillées (en MINUTES)
+- ✅ Heures supplémentaires avec majoration
+- ✅ Plafond hebdo avec alerte si dépassement
+- ✅ Système de remplacement automatique (suggestion d'employés dispo)
+- ✅ Validation congé = dépublication auto des shifts impactés
+- ✅ Notifications aux concernés
+- ✅ Stats RH : heures par employé/équipe, coût estimé, absentéisme
+- ✅ Export PDF du planning (html2canvas pour la vue calendrier)
+- ✅ Export Excel pour la paie
+- ✅ Vue calendrier par employé ET par équipe
+
+Pour chaque manque : implémente proprement, sans bâcler.
+
+B.3 — DESIGN PRO MODULE 2
+Le module doit avoir une identité visuelle pro RH :
+- Palette : vert corporate (#047857) + gris (#6B7280)
+- Cards employés avec photo, nom, poste, département (style trombinoscope)
+- Calendrier des shifts coloré par type (matin/après-midi/soir/nuit)
+- Tableau de bord RH avec KPIs visuels (Chart.js) :
+  * Total heures cette semaine
+  * Heures sup à valider
+  * Congés en attente
+  * Taux d'absentéisme
+  * Top 5 employés par heures
+- Tableaux modernes avec tri, filtres, recherche
+- Modaux propres pour création/édition
+- Loading skeletons pendant les chargements
+
+B.4 — DONNÉES DE DÉMO RÉALISTES (Seeders)
+Crée un seeder qui génère des données réalistes pour la démo :
+- 3 départements (Production, Ventes, Administration)
+- 5 postes (Manager, Vendeur, Caissier, Comptable, Assistant)
+- 15 employés avec photos (utiliser pravatar.cc ou ui-avatars.com)
+- 8 compétences variées
+- Shifts pour les 4 prochaines semaines
+- 5 demandes de congés (3 approuvées, 2 en attente)
+- Historique de quelques mois en arrière
+
+Commande : php artisan make:seeder HrDemoSeeder
+
+B.5 — RESPONSIVE MODULE 2 IRRÉPROCHABLE
+Le module doit fonctionner parfaitement sur :
+- Desktop (1920px) : vue complète multi-colonnes
+- Tablette (768px) : vues empilées intelligemment
+- Mobile (375px) : navigation hamburger, cards empilées, calendrier compact
+
+Test obligatoire sur les 3 tailles avant de commit.
+
+B.6 — TESTS FONCTIONNELS
+Scénarios à tester manuellement après tes modifications :
+1. Créer un département, un poste, un employé
+2. Créer un shift pour un employé
+3. Tenter de créer un shift en conflit (doit être bloqué)
+4. Demander un congé (en tant qu'employé)
+5. Valider le congé (en tant que RH) → vérifier dépublication shifts
+6. Voir les stats RH
+7. Exporter le planning en PDF
+8. Exporter en Excel
+
+Si UN scénario plante, tu corriges avant de commit.
+
+Commit final phase B : "feat(hr): perfectionnement complet du Module 
+Employés - cœur du projet"
+
+⏸️ STOP. Attends ma validation.
+
+────────────────────────────────────────────────
+✨ PHASE C — POLISH GÉNÉRAL
+────────────────────────────────────────────────
+
+C.1 — Cohérence visuelle entre les 5 modules
+- Même style de cards
+- Même style de tableaux
+- Même style de modaux
+- Même style de formulaires
+- Mode sombre fonctionnel partout
+
+C.2 — Animations propres
+- Transitions douces (200-300ms)
+- Loading states sur les boutons d'action
+- Toasts de confirmation (succès, erreur)
+
+C.3 — Mise à jour STATUS.md
+Mets à jour docs/STATUS.md avec :
+- Liste des bugs corrigés
+- Liste des améliorations du Module 2
+- État final du projet
+
+Commit final : "polish: finitions et cohérence visuelle générale"
+
+═══════════════════════════════════════════════════════════════
+
+🛑 RAPPELS CRITIQUES :
+- Mode auto-accept actif : tu peux travailler en autonomie
+- Mais STOPPE après chaque phase pour ma validation
+- Git commit après CHAQUE phase
+- Ne touche PAS à ce qui marche déjà bien (ex : dashboard, sélecteur 
+  de contexte, agenda perso hors bug)
+- Si tu dois faire un choix entre 2 solutions, dis-le moi avant 
+  de coder
+
+ON Y VA. Démarre par la Phase A.
+═══════════════════════════════════════════════════════════════

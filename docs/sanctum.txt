@@ -1,0 +1,12 @@
+Sanctum est installé et opérationnel.
+- Composer require laravel/sanctum : OK (v4.3.2)
+- php artisan install:api : OK (routes/api.php créé)
+- Migration personal_access_tokens : OK
+
+Tu peux maintenant continuer la Phase F : 
+Créer les endpoints API REST pour le MODULE 2 (Employés) UNIQUEMENT.
+
+Rappel important : l'API ne couvre que le Module 2, pas les autres modules.
+Cette API sera consommée par l'application Android native Java.
+
+Lance-toi.

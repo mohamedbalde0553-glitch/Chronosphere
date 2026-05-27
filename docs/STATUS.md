@@ -2,7 +2,7 @@
 
 ## État global
 - Date de démarrage : 2026-05-26
-- Phase actuelle : **Phase E terminée** (notifications + rapports + services layer)
+- Phase actuelle : **Phase Z terminée** (Audit complet + corrections)
 - Dernière session : 2026-05-27
 
 ## Décision stratégique importante
@@ -172,7 +172,105 @@ Patterns dark mode appliqués :
 - Fix RegistrationTest : `Role::create(['name'=>'cal_user'])` dans setUp (Spatie Permission)
 - Couverture : CRUD complet, validations, workflows métier (conflit réservation, approbation congé)
 
-### Phase E — Notifications + Rapports + Services Layer (commit en cours)
+### Phase Z — Audit complet + corrections (2026-05-27)
+
+#### Z.1 — Intégrité projet
+- composer install : OK
+- migrate:status : 57/57 Ran
+- route:list : toutes les routes web + API présentes
+- config/cache clear : OK
+- npm install : OK
+
+#### Z.2 — Modules web
+- Routes vérifiées via `route:list` + 132/132 tests Feature passent
+- /dashboard, /timetable, /shifts, /calendar, /booking, /projects : routes enregistrées
+
+#### Z.3 — API REST
+- `POST /api/auth/login` → token OK (admin@chronosphere.local)
+- `GET /api/employees` (avec token) → 15 employés retournés
+
+#### Z.4 — Régressions identifiées
+
+| Criticité | Problème | Statut |
+|-----------|----------|--------|
+| BLOQUANT | `npm run build` — Can't resolve 'tailwindcss' | Corrigé |
+| MAJEUR | `Controller::authorize()` inexistant (Laravel 11) | Corrigé (Phase H) |
+| MINEUR | `docs/api.md` → renommer en `API_DOCUMENTATION.md` | Corrigé |
+
+#### Z.5 — Corrections appliquées
+- **Build frontend** : suppression `tailwindcss@^3.1.0` + `@tailwindcss/forms` (non utilisés), installation `tailwindcss@^4.3.0` en direct → build OK en 1.60s
+- **Controller authorize** : `use AuthorizesRequests` ajouté dans `Controller.php`
+- **Renommage doc** : `docs/api.md` → `docs/API_DOCUMENTATION.md`
+
+#### Z.6 — État final post-audit
+- 132/132 tests passent
+- Build frontend opérationnel
+- API REST fonctionnelle et sécurisée par rôles
+
+---
+
+### Phase H — Sécurisation API par rôles (2026-05-27)
+
+- `app/Policies/EmployeePolicy.php` — règles par rôle Spatie
+  - `super_admin` : accès total via `before()`
+  - `hr_manager` : CRUD complet sur tous les employés
+  - `hr_employee` : lecture seule de sa propre fiche (index filtré, view/shifts/leave-requests restreints)
+  - Sans rôle RH : 403 sur tout
+- `AuthorizesRequests` ajouté au `Controller` de base (retiré par défaut en Laravel 11)
+- Policy enregistrée via `Gate::policy()` dans `AppServiceProvider`
+- `EmployeeApiController` mis à jour avec `$this->authorize()` sur chaque action
+- `EmployeeApiTest` et `EmployeeSubResourceTest` mis à jour : actor avec rôle `hr_manager`
+- `tests/Feature/Api/EmployeeRoleAccessTest.php` — 18 tests couvrant les 3 rôles + sans rôle
+- **132/132 tests passent**
+
+---
+
+### Phase G — Tests Feature API REST (2026-05-27)
+
+- 31 tests Feature couvrant l'API Module 2 (114 au total, 114/114 passent)
+- `tests/Feature/Api/AuthApiTest.php` (7 tests) : login valide/invalide, compte inactif, logout, requête non authentifiée
+- `tests/Feature/Api/EmployeeApiTest.php` (17 tests) : CRUD complet, pagination, filtres (dept/status/search), validation, données de référence
+- `tests/Feature/Api/EmployeeSubResourceTest.php` (7 tests) : shifts (liste + filtre plage dates + isolation par employé), congés (liste + filtre statut + 404)
+- Fix : `assertJsonStructure` adapté à l'enveloppe `data` des API Resources
+- Fix : format date MySQL (`2026-06-01+00:00:00`) pour le filtre `inRange`
+
+---
+
+### Phase F — API REST Sanctum Module 2 (2026-05-27)
+
+#### F1 — Infrastructure Sanctum
+- `laravel/sanctum` v4.3.2 installé, migration `personal_access_tokens` exécutée
+- `HasApiTokens` ajouté sur le modèle `User`
+- `routes/api.php` configuré dans `bootstrap/app.php`
+
+#### F2 — Authentification API
+- `POST /api/auth/login` → token Bearer + infos user
+- `POST /api/auth/logout` → révocation du token courant
+- Vérification `is_active` + mise à jour `last_login_at` à la connexion
+
+#### F3 — Endpoints Employés (protégés auth:sanctum)
+- `GET /api/employees` — liste paginée (filtres : department_id, status, search)
+- `POST /api/employees` — création
+- `GET /api/employees/{id}` — détail avec skills
+- `PUT /api/employees/{id}` — modification
+- `DELETE /api/employees/{id}` — suppression logique (soft delete)
+- `GET /api/employees/{id}/shifts` — shifts (filtre from/to)
+- `GET /api/employees/{id}/leave-requests` — congés (filtre status)
+- `GET /api/departments` — liste des départements
+- `GET /api/positions` — liste des postes
+
+#### F4 — API Resources (formatage JSON)
+- `EmployeeResource` — champs maîtrisés, user/dept/poste/skills imbriqués via `whenLoaded()`
+- `DepartmentResource`, `PositionResource`, `SkillResource` (niveau pivot via `whenPivotLoaded()`)
+- `ShiftResource`, `LeaveRequestResource` — dates ISO 8601
+- Pagination Laravel : enveloppe `data` + `meta` + `links`
+
+#### F5 — Documentation
+- `docs/API_DOCUMENTATION.md` — référence complète des endpoints (exemples body + réponses JSON)
+
+---
+
+### Phase E — Notifications + Rapports + Services Layer (commit f08ca95)
 
 #### E1 — Services Layer (prêt pour Phase F API)
 - `ShiftService` : createShift, updateShift, detectConflicts, computeOvertime, checkWeeklyLimit
