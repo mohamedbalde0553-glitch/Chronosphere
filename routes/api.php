@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\DepartmentApiController;
 use App\Http\Controllers\Api\EmployeeApiController;
 use App\Http\Controllers\Api\PositionApiController;
+use App\Http\Controllers\Api\WorkScheduleApiController;
 use Illuminate\Support\Facades\Route;
 
 // Auth
@@ -23,6 +24,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('employees', EmployeeApiController::class);
 
     // Sous-ressources d'un employé
-    Route::get('employees/{employee}/shifts',        [EmployeeApiController::class, 'shifts']);
-    Route::get('employees/{employee}/leave-requests', [EmployeeApiController::class, 'leaveRequests']);
+    Route::get('employees/{employee}/shifts',          [EmployeeApiController::class,      'shifts']);
+    Route::get('employees/{employee}/leave-requests',  [EmployeeApiController::class,      'leaveRequests']);
+    Route::get('employees/{employee}/schedule',        [WorkScheduleApiController::class,  'employeeSchedule']);
+    Route::post('employees/{employee}/schedule-override', [WorkScheduleApiController::class, 'storeOverride']);
+
+    // Horaires périodiques
+    Route::apiResource('work-schedules', WorkScheduleApiController::class);
+    Route::post('work-schedules/{work_schedule}/generate-shifts', [WorkScheduleApiController::class, 'generateShifts']);
 });

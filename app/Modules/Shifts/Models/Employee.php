@@ -58,6 +58,11 @@ class Employee extends Model
         return $this->hasMany(LeaveRequest::class);
     }
 
+    public function scheduleOverrides(): HasMany
+    {
+        return $this->hasMany(EmployeeScheduleOverride::class);
+    }
+
     public function scopeActive($query)
     {
         return $query->where('status', 'active');

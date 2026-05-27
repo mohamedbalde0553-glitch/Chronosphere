@@ -5,11 +5,13 @@ namespace Database\Seeders;
 use App\Models\User;
 use App\Modules\Shifts\Models\Department;
 use App\Modules\Shifts\Models\Employee;
+use App\Modules\Shifts\Models\EmployeeScheduleOverride;
 use App\Modules\Shifts\Models\LeaveRequest;
 use App\Modules\Shifts\Models\Position;
 use App\Modules\Shifts\Models\Shift;
 use App\Modules\Shifts\Models\ShiftType;
 use App\Modules\Shifts\Models\Skill;
+use App\Modules\Shifts\Models\WorkSchedule;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Hash;
@@ -192,6 +194,119 @@ class HrDemoSeeder extends Seeder
             }
         }
 
-        $this->command->info('✅ HrDemoSeeder: ' . count($employees) . ' employés, shifts 4 semaines, 5 congés, ' . count($skills) . ' compétences');
+        // ─── Horaires périodiques ─────────────────────────────────────────
+        $adminUser = User::first();
+
+        $scheduleData = [
+            [
+                'name'          => 'Horaire Production — Standard',
+                'description'   => 'Horaire journée standard pour l\'équipe Production (lun-ven 7h-15h)',
+                'department'    => 'PROD',
+                'start_date'    => '2026-01-01',
+                'end_date'      => '2026-12-31',
+                'color'         => '#F59E0B',
+                'days' => [
+                    ['day_of_week'=>1,'start_time'=>'07:00','end_time'=>'15:00','break_minutes'=>30,'is_overtime_eligible'=>true, 'multiplier'=>1.00],
+                    ['day_of_week'=>2,'start_time'=>'07:00','end_time'=>'15:00','break_minutes'=>30,'is_overtime_eligible'=>true, 'multiplier'=>1.00],
+                    ['day_of_week'=>3,'start_time'=>'07:00','end_time'=>'15:00','break_minutes'=>30,'is_overtime_eligible'=>true, 'multiplier'=>1.00],
+                    ['day_of_week'=>4,'start_time'=>'07:00','end_time'=>'15:00','break_minutes'=>30,'is_overtime_eligible'=>true, 'multiplier'=>1.00],
+                    ['day_of_week'=>5,'start_time'=>'07:00','end_time'=>'15:00','break_minutes'=>30,'is_overtime_eligible'=>true, 'multiplier'=>1.00],
+                ],
+            ],
+            [
+                'name'          => 'Horaire Bureau — Administration',
+                'description'   => 'Horaire de bureau classique (lun-ven 9h-17h30)',
+                'department'    => 'ADMIN',
+                'start_date'    => '2026-01-01',
+                'end_date'      => null,
+                'color'         => '#3B82F6',
+                'days' => [
+                    ['day_of_week'=>1,'start_time'=>'09:00','end_time'=>'17:30','break_minutes'=>60,'is_overtime_eligible'=>false,'multiplier'=>1.00],
+                    ['day_of_week'=>2,'start_time'=>'09:00','end_time'=>'17:30','break_minutes'=>60,'is_overtime_eligible'=>false,'multiplier'=>1.00],
+                    ['day_of_week'=>3,'start_time'=>'09:00','end_time'=>'17:30','break_minutes'=>60,'is_overtime_eligible'=>false,'multiplier'=>1.00],
+                    ['day_of_week'=>4,'start_time'=>'09:00','end_time'=>'17:30','break_minutes'=>60,'is_overtime_eligible'=>false,'multiplier'=>1.00],
+                    ['day_of_week'=>5,'start_time'=>'09:00','end_time'=>'17:00','break_minutes'=>60,'is_overtime_eligible'=>false,'multiplier'=>1.00],
+                ],
+            ],
+            [
+                'name'          => 'Horaire Ventes — Rotation week-end',
+                'description'   => 'Équipe Ventes avec rotation le samedi (majoration ×1.25)',
+                'department'    => 'VENTE',
+                'start_date'    => '2026-01-01',
+                'end_date'      => null,
+                'color'         => '#10B981',
+                'days' => [
+                    ['day_of_week'=>1,'start_time'=>'09:00','end_time'=>'18:00','break_minutes'=>60,'is_overtime_eligible'=>false,'multiplier'=>1.00],
+                    ['day_of_week'=>2,'start_time'=>'09:00','end_time'=>'18:00','break_minutes'=>60,'is_overtime_eligible'=>false,'multiplier'=>1.00],
+                    ['day_of_week'=>3,'start_time'=>'09:00','end_time'=>'18:00','break_minutes'=>60,'is_overtime_eligible'=>false,'multiplier'=>1.00],
+                    ['day_of_week'=>4,'start_time'=>'09:00','end_time'=>'18:00','break_minutes'=>60,'is_overtime_eligible'=>false,'multiplier'=>1.00],
+                    ['day_of_week'=>5,'start_time'=>'09:00','end_time'=>'18:00','break_minutes'=>60,'is_overtime_eligible'=>false,'multiplier'=>1.00],
+                    ['day_of_week'=>6,'start_time'=>'10:00','end_time'=>'16:00','break_minutes'=>30,'is_overtime_eligible'=>true, 'multiplier'=>1.25],
+                ],
+            ],
+        ];
+
+        $schedules = [];
+        foreach ($scheduleData as $sd) {
+            $schedule = WorkSchedule::firstOrCreate(
+                ['name' => $sd['name']],
+                [
+                    'description'   => $sd['description'],
+                    'start_date'    => $sd['start_date'],
+                    'end_date'      => $sd['end_date'],
+                    'department_id' => $depts[$sd['department']]->id,
+                    'color'         => $sd['color'],
+                    'is_active'     => true,
+                    'created_by'    => $adminUser?->id,
+                ]
+            );
+
+            if ($schedule->days()->count() === 0) {
+                foreach ($sd['days'] as $day) {
+                    $schedule->days()->create($day);
+                }
+            }
+
+            $schedules[] = $schedule;
+        }
+
+        // ─── Exceptions individuelles ─────────────────────────────────────
+        // Congé maternité : EMP-007 (Gabrielle Simon, ADMIN) applique le bureau à mi-temps fictif
+        if (isset($employees[6], $schedules[1])) {
+            EmployeeScheduleOverride::firstOrCreate(
+                ['employee_id' => $employees[6]->id, 'work_schedule_id' => $schedules[1]->id],
+                [
+                    'override_start_date' => '2026-06-01',
+                    'override_end_date'   => '2026-08-31',
+                    'reason'              => 'Congé maternité — retour progressif',
+                ]
+            );
+        }
+
+        // Mi-temps : EMP-009 (Inès Michel, PROD) horaires bureau au lieu production
+        if (isset($employees[8], $schedules[1])) {
+            EmployeeScheduleOverride::firstOrCreate(
+                ['employee_id' => $employees[8]->id, 'work_schedule_id' => $schedules[1]->id],
+                [
+                    'override_start_date' => '2026-04-01',
+                    'override_end_date'   => '2026-06-30',
+                    'reason'              => 'Mi-temps thérapeutique',
+                ]
+            );
+        }
+
+        // Formation externe : EMP-003 (Clara Dubois, ADMIN) planning ventes
+        if (isset($employees[2], $schedules[2])) {
+            EmployeeScheduleOverride::firstOrCreate(
+                ['employee_id' => $employees[2]->id, 'work_schedule_id' => $schedules[2]->id],
+                [
+                    'override_start_date' => '2026-05-01',
+                    'override_end_date'   => '2026-05-31',
+                    'reason'              => 'Formation commerciale externe',
+                ]
+            );
+        }
+
+        $this->command->info('✅ HrDemoSeeder: ' . count($employees) . ' employés, shifts 4 semaines, 5 congés, ' . count($skills) . ' compétences, ' . count($schedules) . ' horaires périodiques');
     }
 }

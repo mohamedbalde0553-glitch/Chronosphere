@@ -284,6 +284,226 @@ Authorization: Bearer <token>
 
 ---
 
+## Horaires périodiques (Work Schedules)
+
+### Liste des horaires
+```
+GET /work-schedules
+Authorization: Bearer <token>
+```
+**Paramètres query (optionnels)**
+
+| Paramètre | Type | Description |
+|---|---|---|
+| `department_id` | integer | Filtrer par département |
+| `active` | boolean | `1` = actifs uniquement, `0` = inactifs uniquement |
+| `per_page` | integer | Résultats par page (défaut : 20) |
+
+**Réponse 200**
+```json
+{
+  "data": [
+    {
+      "id": 1,
+      "name": "Horaire Standard",
+      "description": null,
+      "start_date": "2026-01-01",
+      "end_date": "2026-12-31",
+      "color": "#3B82F6",
+      "is_active": true,
+      "department": { "id": 1, "name": "Production" },
+      "days": [
+        {
+          "id": 1,
+          "day_of_week": 1,
+          "start_time": "08:00",
+          "end_time": "16:00",
+          "break_minutes": 30,
+          "is_overtime_eligible": false,
+          "multiplier": "1.00",
+          "worked_minutes": 450
+        }
+      ],
+      "created_at": "2026-05-27T10:00:00+00:00"
+    }
+  ],
+  "meta": { "current_page": 1, "last_page": 1, "per_page": 20, "total": 1 }
+}
+```
+> `day_of_week` : 0 = Dimanche, 1 = Lundi, …, 6 = Samedi
+
+---
+
+### Détail d'un horaire
+```
+GET /work-schedules/{id}
+Authorization: Bearer <token>
+```
+**Réponse 200** — même structure que la liste, avec en plus le champ `creator`.
+
+---
+
+### Créer un horaire
+```
+POST /work-schedules
+Authorization: Bearer <token>   (rôle : hr_manager ou super_admin)
+```
+**Body**
+```json
+{
+  "name": "Horaire Nuit",
+  "description": "Équipe de nuit — atelier",
+  "start_date": "2026-06-01",
+  "end_date": "2026-12-31",
+  "department_id": 1,
+  "color": "#6366F1",
+  "is_active": true,
+  "days": [
+    {
+      "day_of_week": 1,
+      "start_time": "22:00",
+      "end_time": "06:00",
+      "break_minutes": 30,
+      "is_overtime_eligible": true,
+      "multiplier": 1.25
+    }
+  ]
+}
+```
+**Contraintes**
+
+| Champ | Règle |
+|---|---|
+| `name` | requis, max 100 caractères |
+| `start_date` | requis, format date |
+| `end_date` | optionnel, >= `start_date` |
+| `department_id` | optionnel, doit exister |
+| `color` | optionnel, max 7 caractères (ex: `#3B82F6`) |
+| `days` | requis, tableau non vide |
+| `days.*.day_of_week` | requis, entier 0–6 |
+| `days.*.start_time` | requis, format `HH:mm` |
+| `days.*.end_time` | requis, format `HH:mm` |
+| `days.*.break_minutes` | optionnel, entier 0–480 |
+| `days.*.multiplier` | optionnel, décimal 1.00–3.00 |
+
+**Réponse 201** — objet horaire complet avec ses jours.
+
+---
+
+### Modifier un horaire
+```
+PUT /work-schedules/{id}
+Authorization: Bearer <token>   (rôle : hr_manager ou super_admin)
+```
+**Body** — même structure que le store (tous les champs requis).
+> Les jours existants sont remplacés entièrement par les nouveaux jours envoyés.
+
+**Réponse 200** — objet horaire mis à jour.
+
+---
+
+### Supprimer un horaire
+```
+DELETE /work-schedules/{id}
+Authorization: Bearer <token>   (rôle : hr_manager ou super_admin)
+```
+**Réponse 200**
+```json
+{ "message": "Horaire supprimé." }
+```
+> Suppression logique (soft delete).
+
+---
+
+### Générer des shifts depuis un horaire
+```
+POST /work-schedules/{id}/generate-shifts
+Authorization: Bearer <token>   (rôle : hr_manager ou super_admin)
+```
+**Body**
+```json
+{
+  "start_date": "2026-06-01",
+  "end_date": "2026-06-30"
+}
+```
+**Comportement**
+- Génère un shift planifié (`status: planned`) par jour configuré dans l'horaire, pour chaque employé actif du département.
+- Respecte les overrides individuels : si un override d'un autre schedule couvre le jour, le shift n'est pas créé.
+- Évite les doublons (un shift identique ne sera pas recréé).
+
+**Réponse 200**
+```json
+{ "created": 22 }
+```
+
+---
+
+### Horaire d'un employé
+```
+GET /employees/{id}/schedule
+Authorization: Bearer <token>
+```
+**Paramètres query (optionnels)**
+
+| Paramètre | Type | Description |
+|---|---|---|
+| `date` | date | Date de référence pour déterminer l'horaire actif (défaut : aujourd'hui) |
+| `from` | date | Début de période pour le calcul des minutes théoriques (défaut : 1er du mois) |
+| `to` | date | Fin de période (défaut : dernier jour du mois) |
+
+**Réponse 200**
+```json
+{
+  "schedule": {
+    "data": {
+      "id": 1,
+      "name": "Horaire Standard",
+      "days": [...],
+      "department": { "id": 1, "name": "Production" }
+    }
+  },
+  "expected_minutes": 9450
+}
+```
+> Si aucun horaire actif n'existe pour cet employé à la date donnée :
+```json
+{ "schedule": null, "expected_minutes": 0 }
+```
+
+---
+
+### Créer un override d'horaire
+```
+POST /employees/{id}/schedule-override
+Authorization: Bearer <token>   (rôle : hr_manager ou super_admin)
+```
+Permet d'affecter temporairement un horaire différent à un employé (ex: congé thérapeutique, formation).
+
+**Body**
+```json
+{
+  "work_schedule_id": 3,
+  "override_start_date": "2026-07-01",
+  "override_end_date": "2026-07-31",
+  "reason": "Temps partiel thérapeutique"
+}
+```
+**Réponse 201**
+```json
+{
+  "id": 5,
+  "employee_id": 7,
+  "work_schedule_id": 3,
+  "override_start_date": "2026-07-01",
+  "override_end_date": "2026-07-31",
+  "reason": "Temps partiel thérapeutique",
+  "created_at": "2026-05-27T15:00:00+00:00"
+}
+```
+
+---
+
 ## Codes d'erreur standards
 
 | Code | Signification |

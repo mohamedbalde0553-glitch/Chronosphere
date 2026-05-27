@@ -1,6 +1,7 @@
 <?php
 
 use App\Modules\Shifts\Http\Controllers\DepartmentController;
+use App\Modules\Shifts\Http\Controllers\WorkScheduleController;
 use App\Modules\Shifts\Http\Controllers\EmployeeController;
 use App\Modules\Shifts\Http\Controllers\LeaveRequestController;
 use App\Modules\Shifts\Http\Controllers\RapportController;
@@ -66,3 +67,13 @@ Route::get('/export/pdf-data', [StatsController::class, 'pdfData'])->name('expor
 Route::get('/rapports', [RapportController::class, 'index'])->name('rapports.index');
 Route::get('/rapports/pdf', [RapportController::class, 'exportPdf'])->name('rapports.pdf');
 Route::get('/rapports/excel', [RapportController::class, 'exportExcel'])->name('rapports.excel');
+
+// Horaires périodiques
+Route::get('/schedules', [WorkScheduleController::class, 'index'])->name('schedules.index');
+Route::get('/schedules/{schedule}', [WorkScheduleController::class, 'show'])->name('schedules.show');
+Route::post('/schedules', [WorkScheduleController::class, 'store'])->name('schedules.store');
+Route::put('/schedules/{schedule}', [WorkScheduleController::class, 'update'])->name('schedules.update');
+Route::delete('/schedules/{schedule}', [WorkScheduleController::class, 'destroy'])->name('schedules.destroy');
+Route::post('/schedules/{schedule}/generate', [WorkScheduleController::class, 'generateShifts'])->name('schedules.generate');
+Route::post('/schedules/{schedule}/overrides', [WorkScheduleController::class, 'storeOverride'])->name('schedules.overrides.store');
+Route::delete('/overrides/{override}', [WorkScheduleController::class, 'destroyOverride'])->name('overrides.destroy');

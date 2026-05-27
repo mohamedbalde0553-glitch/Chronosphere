@@ -2,7 +2,7 @@
 
 ## État global
 - Date de démarrage : 2026-05-26
-- Phase actuelle : **Phase Z terminée** (Audit complet + corrections)
+- Phase actuelle : **Phase J terminée** (Horaires périodiques — Module 2)
 - Dernière session : 2026-05-27
 
 ## Décision stratégique importante
@@ -171,6 +171,49 @@ Patterns dark mode appliqués :
 - Fix phpunit.xml : `APP_URL=http://localhost` (évite 404 liés au sous-répertoire WAMP)
 - Fix RegistrationTest : `Role::create(['name'=>'cal_user'])` dans setUp (Spatie Permission)
 - Couverture : CRUD complet, validations, workflows métier (conflit réservation, approbation congé)
+
+### Phase J — Horaires périodiques (Work Schedules) (2026-05-27)
+
+#### J.1 — Migrations (3 tables)
+- `hr_work_schedules` : id, name, description, start_date, end_date, department_id, created_by, color, is_active, timestamps, softDeletes
+- `hr_work_schedule_days` : id, work_schedule_id, day_of_week, start_time, end_time, break_minutes, is_overtime_eligible, multiplier, timestamps
+- `hr_employee_schedule_overrides` : id, employee_id, work_schedule_id, override_start_date, override_end_date, reason, timestamps
+
+#### J.2 — Models Eloquent
+- `WorkSchedule` : SoftDeletes, scopes `active()` + `forDate()`, relations department/creator/days/overrides
+- `WorkScheduleDay` : méthode `workedMinutes()` (gestion passage minuit), `dayLabel()` statique
+- `EmployeeScheduleOverride` : relations employee/schedule
+- `Employee` : relation `scheduleOverrides()` ajoutée
+- `Department` : relation `workSchedules()` ajoutée
+
+#### J.3 — Service WorkScheduleService
+- `generateShiftsFromSchedule()` : génère les shifts planifiés pour une plage de dates, respect des overrides, évite les doublons
+- `calculateExpectedHours()` : calcule les minutes théoriques sur une période en respectant les overrides
+- `detectConflicts()` : détecte les chevauchements d'horaires actifs dans un même département
+
+#### J.4 — Contrôleur web (WorkScheduleController)
+- CRUD complet + generateShifts + storeOverride + destroyOverride
+- Routes ajoutées dans `routes/modules/shifts.php`
+
+#### J.5 — Vues Blade
+- `schedules/index.blade.php` : liste avec filtres, modal de création/édition Alpine.js, gestion des jours
+- `schedules/show.blade.php` : détail avec avertissements conflits, génération shifts, gestion overrides
+
+#### J.6 — API REST + Tests
+- `WorkScheduleApiController` : CRUD, generate-shifts, employeeSchedule, storeOverride
+- Routes dans `routes/api.php` : `apiResource('work-schedules')` + `generate-shifts` + sous-ressources employé
+- Fix : paramètres de route (`$work_schedule`) alignés sur le binding `{work_schedule}` de apiResource
+- Fix : `WorkScheduleService` — normalisation datetime via Carbon (toDateTimeString) pour cohérence SQLite/MySQL
+- `tests/Feature/Api/WorkScheduleApiTest.php` : 26 tests (CRUD, filtres, generate-shifts, employee schedule, overrides, rôles)
+- `docs/API_DOCUMENTATION.md` mis à jour avec les 8 nouveaux endpoints work-schedules
+
+#### J.7 — Seeder HrDemoSeeder
+- 3 horaires périodiques : Production (Lun-Ven 7h-15h), Bureau/Admin (Lun-Ven 9h-17h30), Ventes (Lun-Sam ×1.25 samedi)
+- 3 overrides : EMP-007 congé maternité (Jun-Août 2026), EMP-009 temps partiel (Avr-Jun 2026), EMP-003 formation (Mai 2026)
+
+**158/158 tests passent**
+
+---
 
 ### Phase Z — Audit complet + corrections (2026-05-27)
 
