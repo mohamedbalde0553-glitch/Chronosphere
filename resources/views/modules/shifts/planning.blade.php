@@ -12,17 +12,27 @@
         .fc-event { border-radius: 3px !important; font-size: 0.75rem; cursor: pointer; }
         .fc-timegrid-slot { height: 2.5rem; }
         .fc-col-header-cell-cushion { font-size: 0.78rem; font-weight: 600; }
+        .dark .fc { color: #e5e7eb; }
+        .dark .fc-scrollgrid, .dark .fc-scrollgrid td, .dark .fc-scrollgrid th { border-color: #374151 !important; }
+        .dark .fc-col-header-cell { background: #1f2937; }
+        .dark .fc-timegrid-slot-lane { background: #111827; }
+        .dark .fc-daygrid-day { background: #111827; }
+        .dark .fc-day-today { background: #1e3a2e !important; }
+        .dark .fc-toolbar-title { color: #f9fafb; }
+        .dark .fc-col-header-cell-cushion { color: #9ca3af; }
+        .dark .fc-timegrid-axis-cushion { color: #9ca3af; }
+        .dark .fc-daygrid-day-number { color: #9ca3af; }
     </style>
     @endpush
 
     <div x-data="planningApp()" class="space-y-4">
 
         {{-- Toolbar --}}
-        <div class="bg-white rounded-xl border border-gray-200 px-4 py-3 flex flex-wrap items-center gap-3">
+        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 px-4 py-3 flex flex-wrap items-center gap-3">
             <div class="flex items-center gap-2 text-sm">
-                <span class="text-gray-500 font-medium">Voir par :</span>
+                <span class="text-gray-500 dark:text-gray-400 font-medium">Voir par :</span>
                 <select x-model="filterType" @change="applyFilter()"
-                        class="px-3 py-1.5 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-emerald-400">
+                        class="px-3 py-1.5 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-400">
                     <option value="department">Département</option>
                     <option value="employee">Employé</option>
                 </select>
@@ -30,7 +40,7 @@
 
             <div x-show="filterType === 'department'">
                 <select x-model="filterId" @change="applyFilter()"
-                        class="px-3 py-1.5 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-emerald-400">
+                        class="px-3 py-1.5 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-400">
                     @foreach($departments as $d)
                     <option value="{{ $d->id }}" {{ $filterId == $d->id ? 'selected' : '' }}>{{ $d->name }}</option>
                     @endforeach
@@ -39,7 +49,7 @@
 
             <div x-show="filterType === 'employee'">
                 <select x-model="filterId" @change="applyFilter()"
-                        class="px-3 py-1.5 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-emerald-400">
+                        class="px-3 py-1.5 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-400">
                     @foreach($employees as $e)
                     <option value="{{ $e->id }}" {{ $filterId == $e->id ? 'selected' : '' }}>
                         {{ $e->user->name }}@if($e->department) ({{ $e->department->name }})@endif
@@ -60,7 +70,7 @@
         </div>
 
         {{-- Calendar --}}
-        <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-4">
+        <div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm p-4">
             <div id="cs-shifts"
                  data-feed-url="{{ route('shifts.planning.feed') }}"
                  data-filter-type="{{ $filterType }}"
@@ -70,7 +80,7 @@
 
         {{-- Weekly limit warning --}}
         <div x-show="warnings.length > 0" x-cloak
-             class="bg-amber-50 border border-amber-200 rounded-xl p-4">
+             class="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-4">
             <div class="flex items-start gap-3">
                 <svg class="w-5 h-5 text-amber-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
@@ -89,7 +99,7 @@
 
         {{-- Conflict alert --}}
         <div x-show="conflicts.length > 0" x-cloak
-             class="bg-red-50 border border-red-200 rounded-xl p-4">
+             class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-4">
             <div class="flex items-start gap-3">
                 <svg class="w-5 h-5 text-red-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
@@ -116,12 +126,12 @@
              class="fixed inset-0 z-50 flex items-center justify-center p-4"
              @keydown.escape.window="closeModal()">
             <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" @click="closeModal()"></div>
-            <div class="relative bg-white rounded-2xl shadow-xl w-full max-w-md z-10" @click.stop>
+            <div class="relative bg-white dark:bg-gray-800 rounded-2xl shadow-xl w-full max-w-md z-10" @click.stop>
 
-                <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
-                    <h3 class="text-base font-semibold text-gray-900"
+                <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-gray-700">
+                    <h3 class="text-base font-semibold text-gray-900 dark:text-white"
                         x-text="editMode ? 'Modifier le shift' : 'Nouveau shift'"></h3>
-                    <button @click="closeModal()" class="text-gray-400 hover:text-gray-600">
+                    <button @click="closeModal()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
                         </svg>
@@ -130,9 +140,9 @@
 
                 <div class="px-6 py-5 space-y-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Employé <span class="text-red-500">*</span></label>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Employé <span class="text-red-500">*</span></label>
                         <select x-model="form.employee_id"
-                                class="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                                class="w-full px-3 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
                                 :class="errors.employee_id ? 'border-red-400' : ''">
                             <option value="">— Sélectionner —</option>
                             @foreach($employees as $e)
@@ -143,9 +153,9 @@
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Type de shift</label>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Type de shift</label>
                         <select x-model="form.shift_type_id"
-                                class="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                                class="w-full px-3 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
                             <option value="">— Aucun —</option>
                             @foreach($shiftTypes as $st)
                             <option value="{{ $st->id }}">{{ $st->name }} ({{ $st->start_time }}–{{ $st->end_time }})</option>
@@ -155,15 +165,15 @@
 
                     <div class="grid grid-cols-2 gap-3">
                         <div>
-                            <label class="block text-xs font-medium text-gray-500 mb-1">Début</label>
+                            <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Début</label>
                             <input type="datetime-local" x-model="form.start_at"
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                                   class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
                                    :class="errors.start_at ? 'border-red-400' : ''">
                         </div>
                         <div>
-                            <label class="block text-xs font-medium text-gray-500 mb-1">Fin</label>
+                            <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Fin</label>
                             <input type="datetime-local" x-model="form.end_at"
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                                   class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
                                    :class="errors.end_at ? 'border-red-400' : ''">
                         </div>
                     </div>
@@ -171,17 +181,17 @@
                     <p x-show="errors.end_at" x-text="errors.end_at" class="text-xs text-red-600"></p>
 
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Notes</label>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Notes</label>
                         <input type="text" x-model="form.notes" placeholder="Optionnel…"
-                               class="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                               class="w-full px-3 py-2.5 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
                     </div>
                 </div>
 
-                <div class="flex items-center justify-between px-6 py-4 border-t border-gray-100 bg-gray-50">
+                <div class="flex items-center justify-between px-6 py-4 border-t border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
                     <button x-show="editMode" @click="deleteShift()"
-                            class="text-sm text-red-600 hover:bg-red-50 px-3 py-2 rounded-lg">Supprimer</button>
+                            class="text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 px-3 py-2 rounded-lg">Supprimer</button>
                     <div class="flex gap-3 ml-auto">
-                        <button @click="closeModal()" class="px-4 py-2 text-sm text-gray-700 border border-gray-300 bg-white rounded-lg hover:bg-gray-50">Annuler</button>
+                        <button @click="closeModal()" class="px-4 py-2 text-sm text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600">Annuler</button>
                         <button @click="saveShift()" :disabled="loading"
                                 class="px-5 py-2 text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg disabled:opacity-60">
                             <span x-show="!loading">Enregistrer</span>

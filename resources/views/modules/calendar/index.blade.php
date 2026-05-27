@@ -13,6 +13,18 @@
         .fc-event { border-radius: 4px !important; font-size: 0.78rem; cursor: pointer; }
         .fc-daygrid-day-number { font-size: 0.8rem; }
         .fc-col-header-cell-cushion { font-size: 0.8rem; font-weight: 600; text-transform: uppercase; }
+        .dark .fc { color: #e5e7eb; }
+        .dark .fc-scrollgrid, .dark .fc-scrollgrid td, .dark .fc-scrollgrid th { border-color: #374151 !important; }
+        .dark .fc-col-header-cell { background: #1f2937; }
+        .dark .fc-timegrid-slot-lane { background: #111827; }
+        .dark .fc-daygrid-day { background: #111827; }
+        .dark .fc-day-today { background: #1e1b4b !important; }
+        .dark .fc-toolbar-title { color: #f9fafb; }
+        .dark .fc-col-header-cell-cushion { color: #9ca3af; }
+        .dark .fc-timegrid-axis-cushion { color: #9ca3af; }
+        .dark .fc-daygrid-day-number { color: #9ca3af; }
+        .dark .fc-list-day-cushion { background: #1f2937 !important; color: #e5e7eb; }
+        .dark .fc-list-event:hover td { background: #374151 !important; }
     </style>
     @endpush
 
@@ -37,8 +49,8 @@
             </button>
 
             {{-- Mes calendriers --}}
-            <div class="bg-white rounded-xl border border-gray-200 p-4">
-                <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">Mes calendriers</p>
+            <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
+                <p class="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wide mb-3">Mes calendriers</p>
                 <div class="space-y-2" id="cal-filter-list">
                     @foreach($calendars as $cal)
                     <label class="flex items-center gap-2.5 cursor-pointer group">
@@ -48,7 +60,7 @@
                                checked
                                @change="filterCalendar($event)">
                         <span class="w-3 h-3 rounded-full shrink-0" style="background:{{ $cal->color }}"></span>
-                        <span class="text-sm text-gray-700 truncate">{{ $cal->name }}</span>
+                        <span class="text-sm text-gray-700 dark:text-gray-300 truncate">{{ $cal->name }}</span>
                         @if($cal->is_default)
                         <span class="ml-auto text-xs text-gray-400">défaut</span>
                         @endif
@@ -68,7 +80,7 @@
                     </button>
                     <div x-show="showForm" x-cloak class="space-y-2">
                         <input name="name" type="text" placeholder="Nom" required
-                               class="w-full text-xs px-2 py-1.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-400">
+                               class="w-full text-xs px-2 py-1.5 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-400">
                         <div class="flex items-center gap-2">
                             <input name="color" type="color" value="#7C3AED"
                                    class="w-8 h-7 rounded cursor-pointer border border-gray-300">
@@ -82,13 +94,13 @@
 
             {{-- Catégories --}}
             @if($categories->count())
-            <div class="bg-white rounded-xl border border-gray-200 p-4">
-                <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">Catégories</p>
+            <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
+                <p class="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wide mb-3">Catégories</p>
                 <div class="space-y-1.5">
                     @foreach($categories as $cat)
                     <div class="flex items-center gap-2">
                         <span class="w-2.5 h-2.5 rounded-full shrink-0" style="background:{{ $cat->color }}"></span>
-                        <span class="text-xs text-gray-600">{{ $cat->name }}</span>
+                        <span class="text-xs text-gray-600 dark:text-gray-400">{{ $cat->name }}</span>
                     </div>
                     @endforeach
                 </div>
@@ -98,7 +110,7 @@
         </aside>
 
         {{-- ===== FULLCALENDAR ===== --}}
-        <div class="flex-1 bg-white rounded-2xl border border-gray-200 shadow-sm p-4 min-w-0">
+        <div class="flex-1 bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm p-4 min-w-0">
             <div
                 id="cs-calendar"
                 data-feed-url="{{ route('calendar.feed') }}"
@@ -116,15 +128,15 @@
             <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" @click="closeModal()"></div>
 
             {{-- Panel --}}
-            <div class="relative bg-white rounded-2xl shadow-xl w-full max-w-lg z-10 flex flex-col max-h-[90vh]"
+            <div class="relative bg-white dark:bg-gray-800 rounded-2xl shadow-xl w-full max-w-lg z-10 flex flex-col max-h-[90vh]"
                  @click.stop>
 
                 {{-- Header --}}
-                <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100 shrink-0">
-                    <h3 class="text-base font-semibold text-gray-900"
+                <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-gray-700 shrink-0">
+                    <h3 class="text-base font-semibold text-gray-900 dark:text-white"
                         x-text="editMode ? 'Modifier l\'événement' : 'Nouvel événement'">
                     </h3>
-                    <button @click="closeModal()" class="text-gray-400 hover:text-gray-600">
+                    <button @click="closeModal()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
                         </svg>
@@ -136,18 +148,18 @@
 
                     {{-- Titre --}}
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Titre <span class="text-red-500">*</span></label>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Titre <span class="text-red-500">*</span></label>
                         <input type="text" x-model="form.title" placeholder="Nom de l'événement"
-                               class="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-violet-500"
+                               class="w-full px-3 py-2.5 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-violet-500"
                                :class="errors.title ? 'border-red-400' : ''">
                         <p x-show="errors.title" x-text="errors.title" class="mt-1 text-xs text-red-600"></p>
                     </div>
 
                     {{-- Calendrier --}}
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Calendrier</label>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Calendrier</label>
                         <select x-model="form.calendar_id"
-                                class="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-violet-500">
+                                class="w-full px-3 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-violet-500">
                             @foreach($calendars as $cal)
                             <option value="{{ $cal->id }}">{{ $cal->name }}</option>
                             @endforeach
@@ -156,24 +168,24 @@
 
                     {{-- Dates --}}
                     <div>
-                        <label class="flex items-center gap-2 text-sm text-gray-700 mb-3 cursor-pointer">
-                            <input type="checkbox" x-model="form.is_all_day" class="rounded border-gray-300 text-violet-600 focus:ring-violet-500">
+                        <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 mb-3 cursor-pointer">
+                            <input type="checkbox" x-model="form.is_all_day" class="rounded border-gray-300 dark:border-gray-600 text-violet-600 focus:ring-violet-500">
                             Journée entière
                         </label>
 
                         <div class="grid grid-cols-2 gap-3">
                             <div>
-                                <label class="block text-xs font-medium text-gray-500 mb-1">Début</label>
+                                <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Début</label>
                                 <input x-model="form.start_at"
                                        :type="form.is_all_day ? 'date' : 'datetime-local'"
-                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-violet-500"
+                                       class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-violet-500"
                                        :class="errors.start_at ? 'border-red-400' : ''">
                             </div>
                             <div>
-                                <label class="block text-xs font-medium text-gray-500 mb-1">Fin</label>
+                                <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Fin</label>
                                 <input x-model="form.end_at"
                                        :type="form.is_all_day ? 'date' : 'datetime-local'"
-                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-violet-500">
+                                       class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-violet-500">
                             </div>
                         </div>
                         <p x-show="errors.start_at" x-text="errors.start_at" class="mt-1 text-xs text-red-600"></p>
@@ -182,18 +194,18 @@
                     {{-- Lieu + Couleur --}}
                     <div class="grid grid-cols-2 gap-3">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Lieu</label>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Lieu</label>
                             <input type="text" x-model="form.location" placeholder="Salle, adresse…"
-                                   class="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-violet-500">
+                                   class="w-full px-3 py-2.5 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-violet-500">
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Couleur</label>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Couleur</label>
                             <div class="flex items-center gap-1.5 flex-wrap">
                                 @foreach(['#7C3AED','#2563EB','#059669','#EA580C','#DC2626','#DB2777','#0891B2','#6B7280'] as $c)
                                 <button type="button"
                                         @click="form.color = '{{ $c }}'"
                                         class="w-6 h-6 rounded-full border-2 transition-shadow hover:shadow-md"
-                                        :class="form.color === '{{ $c }}' ? 'border-gray-800 scale-110' : 'border-transparent'"
+                                        :class="form.color === '{{ $c }}' ? 'border-gray-800 dark:border-white scale-110' : 'border-transparent'"
                                         style="background:{{ $c }}">
                                 </button>
                                 @endforeach
@@ -203,16 +215,16 @@
 
                     {{-- Description --}}
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
                         <textarea x-model="form.description" rows="2" placeholder="Notes optionnelles…"
-                                  class="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm resize-none focus:outline-none focus:ring-2 focus:ring-violet-500"></textarea>
+                                  class="w-full px-3 py-2.5 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg text-sm resize-none focus:outline-none focus:ring-2 focus:ring-violet-500"></textarea>
                     </div>
 
                     {{-- Statut (édition seulement) --}}
                     <div x-show="editMode">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Statut</label>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Statut</label>
                         <select x-model="form.status"
-                                class="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-violet-500">
+                                class="w-full px-3 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-violet-500">
                             <option value="confirmed">Confirmé</option>
                             <option value="tentative">Provisoire</option>
                             <option value="cancelled">Annulé</option>
@@ -222,16 +234,16 @@
                 </div>
 
                 {{-- Footer --}}
-                <div class="flex items-center justify-between px-6 py-4 border-t border-gray-100 bg-gray-50 shrink-0">
+                <div class="flex items-center justify-between px-6 py-4 border-t border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 shrink-0">
                     <div>
                         <button x-show="editMode" @click="deleteEvent()"
-                                class="px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50 rounded-lg transition-colors">
+                                class="px-4 py-2 text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors">
                             Supprimer
                         </button>
                     </div>
                     <div class="flex gap-3">
                         <button @click="closeModal()"
-                                class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                                class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors">
                             Annuler
                         </button>
                         <button @click="saveEvent()" :disabled="loading"

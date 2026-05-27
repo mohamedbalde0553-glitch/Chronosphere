@@ -9,11 +9,23 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300..700;1,14..32,300..400&display=swap" rel="stylesheet">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @stack('styles')
+    <script>
+        if (localStorage.getItem('darkMode') === 'true') document.documentElement.classList.add('dark');
+    </script>
 </head>
-<body class="h-full bg-gray-50 font-sans antialiased" x-data="{ sidebar: true, mobileNav: false, notifOpen: false, userOpen: false }">
+<body class="h-full bg-gray-50 dark:bg-gray-950 font-sans antialiased transition-colors duration-200"
+      x-data="{
+          sidebar: true,
+          mobileNav: false,
+          darkMode: localStorage.getItem('darkMode') === 'true',
+          toggleDark() {
+              this.darkMode = !this.darkMode;
+              localStorage.setItem('darkMode', this.darkMode);
+              document.documentElement.classList.toggle('dark', this.darkMode);
+          }
+      }">
 
 {{-- ===== SIDEBAR ===== --}}
-{{-- Mobile overlay backdrop --}}
 <div x-show="mobileNav" x-cloak @click="mobileNav=false"
      class="fixed inset-0 z-40 bg-black/50 md:hidden"></div>
 
@@ -47,7 +59,6 @@
     {{-- Nav --}}
     <nav class="flex-1 overflow-y-auto py-3 space-y-0.5 px-2">
 
-        {{-- Dashboard --}}
         @php $isDash = request()->routeIs('dashboard'); @endphp
         <a href="{{ route('dashboard') }}"
            class="group flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors
@@ -61,7 +72,6 @@
         <div class="my-3 border-t border-gray-700" x-show="sidebar" x-cloak></div>
         <p class="px-3 py-1 text-xs font-semibold text-gray-500 uppercase tracking-wider" x-show="sidebar" x-cloak>Modules</p>
 
-        {{-- Universitaire --}}
         @can('timetable.view')
         @php $isUni = request()->routeIs('timetable.*'); @endphp
         <a href="{{ route('timetable.index') }}"
@@ -75,7 +85,6 @@
         </a>
         @endcan
 
-        {{-- Employés --}}
         @can('shifts.view')
         @php $isHr = request()->routeIs('shifts.*'); @endphp
         <a href="{{ route('shifts.index') }}"
@@ -88,7 +97,6 @@
         </a>
         @endcan
 
-        {{-- Agenda --}}
         @can('calendar.view')
         @php $isCal = request()->routeIs('calendar.*'); @endphp
         <a href="{{ route('calendar.index') }}"
@@ -101,7 +109,6 @@
         </a>
         @endcan
 
-        {{-- Réservation --}}
         @can('booking.view')
         @php $isBook = request()->routeIs('booking.*'); @endphp
         <a href="{{ route('booking.index') }}"
@@ -114,7 +121,6 @@
         </a>
         @endcan
 
-        {{-- Projet --}}
         @can('project.view')
         @php $isProj = request()->routeIs('project.*'); @endphp
         <a href="{{ route('project.index') }}"
@@ -156,26 +162,35 @@
 <div class="transition-all duration-300" :class="sidebar ? 'md:pl-64' : 'md:pl-16'">
 
     {{-- Topbar --}}
-    <header class="sticky top-0 z-40 bg-white border-b border-gray-200 h-14 flex items-center px-4 md:px-6 gap-4">
-        {{-- Hamburger (mobile only) --}}
-        <button @click="mobileNav=!mobileNav" class="md:hidden text-gray-500 hover:text-gray-700 shrink-0">
+    <header class="sticky top-0 z-40 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 h-14 flex items-center px-4 md:px-6 gap-4">
+        <button @click="mobileNav=!mobileNav" class="md:hidden text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 shrink-0">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>
             </svg>
         </button>
-        <h1 class="text-base font-semibold text-gray-900 truncate">
+        <h1 class="text-base font-semibold text-gray-900 dark:text-white truncate">
             {{ $title ?? 'Tableau de bord' }}
         </h1>
 
         <div class="ml-auto flex items-center gap-3">
-            {{-- Flash success --}}
             @if(session('success'))
-            <span class="text-sm text-emerald-600 font-medium">{{ session('success') }}</span>
+            <span class="text-sm text-emerald-600 dark:text-emerald-400 font-medium">{{ session('success') }}</span>
             @endif
 
-            {{-- Profile link --}}
-            <a href="{{ route('profile.edit') }}" class="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900">
-                <div class="w-7 h-7 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 text-xs font-semibold">
+            {{-- Dark mode toggle --}}
+            <button @click="toggleDark()"
+                    class="w-8 h-8 flex items-center justify-center rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                    :title="darkMode ? 'Mode clair' : 'Mode sombre'">
+                <svg x-show="!darkMode" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
+                </svg>
+                <svg x-show="darkMode" x-cloak class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
+                </svg>
+            </button>
+
+            <a href="{{ route('profile.edit') }}" class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
+                <div class="w-7 h-7 rounded-full bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center text-indigo-700 dark:text-indigo-300 text-xs font-semibold">
                     {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
                 </div>
                 <span class="hidden sm:inline">{{ auth()->user()->name }}</span>
@@ -183,17 +198,48 @@
         </div>
     </header>
 
-    {{-- Flash errors --}}
     @if(session('error'))
-    <div class="mx-6 mt-4 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
+    <div class="mx-6 mt-4 p-3 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-lg text-sm text-red-700 dark:text-red-400">
         {{ session('error') }}
     </div>
     @endif
 
-    {{-- Content --}}
     <main class="p-4 md:p-6">
         {{ $slot }}
     </main>
+</div>
+
+{{-- ===== TOASTS ===== --}}
+<div x-data="{
+        toasts: [],
+        add(msg, type = 'success') {
+            const id = Date.now();
+            this.toasts.push({ id, msg, type });
+            setTimeout(() => this.remove(id), 4000);
+        },
+        remove(id) { this.toasts = this.toasts.filter(t => t.id !== id); }
+     }"
+     @toast.window="add($event.detail.message, $event.detail.type ?? 'success')"
+     class="fixed bottom-5 right-5 z-[200] space-y-2 pointer-events-none">
+    <template x-for="t in toasts" :key="t.id">
+        <div class="pointer-events-auto flex items-center gap-3 px-4 py-3 rounded-xl shadow-lg border text-sm font-medium
+                    transition-all duration-300 min-w-[240px] max-w-xs"
+             :class="{
+                 'bg-white dark:bg-gray-800 border-emerald-200 dark:border-emerald-700 text-emerald-700 dark:text-emerald-300': t.type === 'success',
+                 'bg-white dark:bg-gray-800 border-red-200 dark:border-red-700 text-red-700 dark:text-red-400': t.type === 'error',
+                 'bg-white dark:bg-gray-800 border-amber-200 dark:border-amber-700 text-amber-700 dark:text-amber-400': t.type === 'warning',
+                 'bg-white dark:bg-gray-800 border-blue-200 dark:border-blue-700 text-blue-700 dark:text-blue-400': t.type === 'info',
+             }">
+            <svg x-show="t.type === 'success'" class="w-4 h-4 shrink-0 text-emerald-500" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+            <svg x-show="t.type === 'error'" class="w-4 h-4 shrink-0 text-red-500" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+            <svg x-show="t.type === 'warning'" class="w-4 h-4 shrink-0 text-amber-500" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>
+            <svg x-show="t.type === 'info'" class="w-4 h-4 shrink-0 text-blue-500" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <span x-text="t.msg" class="flex-1"></span>
+            <button @click="remove(t.id)" class="opacity-60 hover:opacity-100 ml-1">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+        </div>
+    </template>
 </div>
 
 @stack('scripts')

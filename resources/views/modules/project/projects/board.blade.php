@@ -21,11 +21,11 @@
 
         {{-- Topbar --}}
         <div class="flex items-center gap-3 mb-5">
-            <a href="{{ route('project.index') }}" class="text-sm text-gray-500 hover:text-gray-700">← Projets</a>
-            <span class="text-gray-300">/</span>
+            <a href="{{ route('project.index') }}" class="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200">← Projets</a>
+            <span class="text-gray-300 dark:text-gray-600">/</span>
             <div class="flex items-center gap-2">
                 <span class="w-3 h-3 rounded-full" style="background:{{ $project->color ?? '#4F46E5' }}"></span>
-                <h2 class="text-base font-semibold text-gray-900">{{ $project->name }}</h2>
+                <h2 class="text-base font-semibold text-gray-900 dark:text-white">{{ $project->name }}</h2>
             </div>
             <div class="ml-auto flex gap-2">
                 <a href="{{ route('project.projects.gantt', $project) }}"
@@ -47,8 +47,8 @@
                 <div class="flex items-center justify-between px-1">
                     <div class="flex items-center gap-2">
                         <span class="w-2.5 h-2.5 rounded-full {{ $col['dot'] }}"></span>
-                        <span class="text-sm font-semibold text-gray-700">{{ $col['label'] }}</span>
-                        <span class="text-xs bg-gray-100 text-gray-500 rounded-full px-2 py-0.5">{{ count($tasks[$status]) }}</span>
+                        <span class="text-sm font-semibold text-gray-700 dark:text-gray-300">{{ $col['label'] }}</span>
+                        <span class="text-xs bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 rounded-full px-2 py-0.5">{{ count($tasks[$status]) }}</span>
                     </div>
                     <button @click="openCreate('{{ $status }}')"
                             class="text-gray-400 hover:text-gray-600 text-lg leading-none">+</button>
@@ -56,11 +56,11 @@
 
                 {{-- Task list --}}
                 <div data-kanban-column="{{ $status }}"
-                     class="flex flex-col gap-2 min-h-[120px] rounded-xl bg-gray-50/70 p-2">
+                     class="flex flex-col gap-2 min-h-[120px] rounded-xl bg-gray-50/70 dark:bg-gray-800/50 p-2">
 
                     @foreach($tasks[$status] as $task)
                     <div data-task-id="{{ $task->id }}"
-                         class="bg-white rounded-xl border border-gray-200 p-3 shadow-sm cursor-pointer hover:border-indigo-300 hover:shadow-md transition-all group"
+                         class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-3 shadow-sm cursor-pointer hover:border-indigo-300 dark:hover:border-indigo-600 hover:shadow-md transition-all group"
                          @click="openTask({{ $task->id }})">
 
                         {{-- Drag handle --}}
@@ -73,11 +73,11 @@
                             </span>
                         </div>
 
-                        <p class="text-sm font-medium text-gray-900 line-clamp-2 mb-2">{{ $task->name }}</p>
+                        <p class="text-sm font-medium text-gray-900 dark:text-white line-clamp-2 mb-2">{{ $task->name }}</p>
 
                         {{-- Progress bar --}}
                         @if($task->progress > 0)
-                        <div class="h-1 bg-gray-100 rounded-full mb-2 overflow-hidden">
+                        <div class="h-1 bg-gray-100 dark:bg-gray-700 rounded-full mb-2 overflow-hidden">
                             <div class="h-full bg-indigo-500 rounded-full" style="width:{{ $task->progress }}%"></div>
                         </div>
                         @endif
@@ -119,18 +119,18 @@
              class="fixed inset-0 z-50 flex justify-end"
              @keydown.escape.window="closeDrawer()">
             <div class="absolute inset-0 bg-black/30" @click="closeDrawer()"></div>
-            <div class="relative w-full max-w-lg bg-white shadow-2xl flex flex-col h-full" @click.stop>
+            <div class="relative w-full max-w-lg bg-white dark:bg-gray-800 shadow-2xl flex flex-col h-full" @click.stop>
 
                 {{-- Drawer header --}}
-                <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
-                    <h3 class="text-sm font-semibold text-gray-900 truncate pr-4"
+                <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-gray-700">
+                    <h3 class="text-sm font-semibold text-gray-900 dark:text-white truncate pr-4"
                         x-text="taskForm.name || 'Tâche'"></h3>
                     <div class="flex gap-2">
                         <button @click="saveTask()" :disabled="taskLoading"
                                 class="px-4 py-1.5 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg disabled:opacity-60">
                             <span x-show="!taskLoading">Sauvegarder</span><span x-show="taskLoading">…</span>
                         </button>
-                        <button @click="closeDrawer()" class="text-gray-400 hover:text-gray-600 p-1">
+                        <button @click="closeDrawer()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 p-1">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
                             </svg>
@@ -142,16 +142,16 @@
                 <div class="flex-1 overflow-y-auto px-6 py-5 space-y-5">
 
                     <div>
-                        <label class="block text-xs font-medium text-gray-500 mb-1">Titre</label>
+                        <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Titre</label>
                         <input type="text" x-model="taskForm.name"
-                               class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
                     </div>
 
                     <div class="grid grid-cols-2 gap-3">
                         <div>
-                            <label class="block text-xs font-medium text-gray-500 mb-1">Statut</label>
+                            <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Statut</label>
                             <select x-model="taskForm.status"
-                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                    class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
                                 <option value="todo">À faire</option>
                                 <option value="in_progress">En cours</option>
                                 <option value="review">Révision</option>
@@ -160,9 +160,9 @@
                             </select>
                         </div>
                         <div>
-                            <label class="block text-xs font-medium text-gray-500 mb-1">Priorité</label>
+                            <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Priorité</label>
                             <select x-model="taskForm.priority"
-                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                    class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
                                 <option value="low">Bas</option>
                                 <option value="medium">Moyen</option>
                                 <option value="high">Haut</option>
@@ -172,9 +172,9 @@
                     </div>
 
                     <div>
-                        <label class="block text-xs font-medium text-gray-500 mb-1">Assigné à</label>
+                        <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Assigné à</label>
                         <select x-model="taskForm.assigned_to"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
                             <option value="">— Non assigné —</option>
                             @foreach($members as $m)
                             <option value="{{ $m->id }}">{{ $m->name }}</option>
@@ -184,60 +184,60 @@
 
                     <div class="grid grid-cols-2 gap-3">
                         <div>
-                            <label class="block text-xs font-medium text-gray-500 mb-1">Début</label>
+                            <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Début</label>
                             <input type="date" x-model="taskForm.start_date"
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                   class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
                         </div>
                         <div>
-                            <label class="block text-xs font-medium text-gray-500 mb-1">Échéance</label>
+                            <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Échéance</label>
                             <input type="date" x-model="taskForm.due_date"
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                   class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
                         </div>
                     </div>
 
                     <div>
-                        <label class="block text-xs font-medium text-gray-500 mb-1">
+                        <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
                             Avancement : <span x-text="taskForm.progress + '%'"></span>
                         </label>
                         <input type="range" x-model="taskForm.progress" min="0" max="100" step="5"
-                               class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-indigo-600">
+                               class="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer accent-indigo-600">
                     </div>
 
                     <div>
-                        <label class="block text-xs font-medium text-gray-500 mb-1">Estimation (min.)</label>
+                        <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Estimation (min.)</label>
                         <input type="number" x-model="taskForm.estimated_minutes" min="0" step="30"
-                               class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
                     </div>
 
                     <div>
-                        <label class="block text-xs font-medium text-gray-500 mb-1">Description</label>
+                        <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Description</label>
                         <textarea x-model="taskForm.description" rows="3"
-                                  class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none"></textarea>
+                                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none"></textarea>
                     </div>
 
                     {{-- Delete --}}
-                    <div class="pt-2 border-t border-gray-100">
+                    <div class="pt-2 border-t border-gray-100 dark:border-gray-700">
                         <button @click="deleteTask()"
-                                class="text-sm text-red-500 hover:text-red-700 hover:bg-red-50 px-3 py-1.5 rounded-lg transition-colors">
+                                class="text-sm text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 px-3 py-1.5 rounded-lg transition-colors">
                             Supprimer la tâche
                         </button>
                     </div>
 
                     {{-- Comments --}}
-                    <div class="pt-2 border-t border-gray-100">
-                        <h4 class="text-sm font-semibold text-gray-700 mb-3">Commentaires</h4>
+                    <div class="pt-2 border-t border-gray-100 dark:border-gray-700">
+                        <h4 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">Commentaires</h4>
 
                         <div class="space-y-3 mb-4" id="comments-list">
                             <template x-for="c in comments" :key="c.id">
                                 <div class="flex gap-3">
-                                    <div class="w-7 h-7 rounded-full bg-indigo-100 text-indigo-700 text-xs font-bold flex items-center justify-center shrink-0"
+                                    <div class="w-7 h-7 rounded-full bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 text-xs font-bold flex items-center justify-center shrink-0"
                                          x-text="c.user.name.charAt(0).toUpperCase()"></div>
                                     <div class="flex-1 min-w-0">
                                         <div class="flex items-center gap-2 mb-0.5">
-                                            <span class="text-xs font-semibold text-gray-800" x-text="c.user.name"></span>
+                                            <span class="text-xs font-semibold text-gray-800 dark:text-gray-200" x-text="c.user.name"></span>
                                             <span class="text-xs text-gray-400" x-text="c.created_at ? new Date(c.created_at).toLocaleDateString('fr') : ''"></span>
                                         </div>
-                                        <p class="text-sm text-gray-700" x-text="c.content"></p>
+                                        <p class="text-sm text-gray-700 dark:text-gray-300" x-text="c.content"></p>
                                     </div>
                                 </div>
                             </template>
@@ -249,7 +249,7 @@
                         <div class="flex gap-2">
                             <input type="text" x-model="newComment" placeholder="Ajouter un commentaire…"
                                    @keydown.enter="postComment()"
-                                   class="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400">
+                                   class="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-400">
                             <button @click="postComment()"
                                     class="px-3 py-2 bg-indigo-600 text-white text-sm rounded-lg hover:bg-indigo-700">
                                 Envoyer
@@ -264,20 +264,20 @@
         {{-- Add task modal (quick) --}}
         <div x-show="showAddModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center p-4">
             <div class="absolute inset-0 bg-black/40" @click="showAddModal=false"></div>
-            <div class="relative bg-white rounded-2xl shadow-xl w-full max-w-sm z-10 p-6 space-y-4" @click.stop>
-                <h3 class="text-sm font-semibold text-gray-900">Nouvelle tâche</h3>
+            <div class="relative bg-white dark:bg-gray-800 rounded-2xl shadow-xl w-full max-w-sm z-10 p-6 space-y-4" @click.stop>
+                <h3 class="text-sm font-semibold text-gray-900 dark:text-white">Nouvelle tâche</h3>
 
                 <div>
                     <input type="text" x-model="newTaskName" placeholder="Nom de la tâche…" @keydown.enter="quickCreate()"
-                           class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                           class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
                            x-ref="addInput">
                 </div>
 
                 <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label class="block text-xs font-medium text-gray-500 mb-1">Priorité</label>
+                        <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Priorité</label>
                         <select x-model="newTaskPriority"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
                             <option value="low">Bas</option>
                             <option value="medium">Moyen</option>
                             <option value="high">Haut</option>
@@ -285,9 +285,9 @@
                         </select>
                     </div>
                     <div>
-                        <label class="block text-xs font-medium text-gray-500 mb-1">Assigné à</label>
+                        <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Assigné à</label>
                         <select x-model="newTaskAssignee"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
                             <option value="">— Aucun —</option>
                             @foreach($members as $m)
                             <option value="{{ $m->id }}">{{ $m->name }}</option>
@@ -297,7 +297,7 @@
                 </div>
 
                 <div class="flex justify-end gap-3">
-                    <button @click="showAddModal=false" class="px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50">Annuler</button>
+                    <button @click="showAddModal=false" class="px-4 py-2 text-sm border border-gray-300 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700 rounded-lg hover:bg-gray-50">Annuler</button>
                     <button @click="quickCreate()" :disabled="taskLoading"
                             class="px-5 py-2 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg disabled:opacity-60">
                         <span x-show="!taskLoading">Créer</span><span x-show="taskLoading">…</span>

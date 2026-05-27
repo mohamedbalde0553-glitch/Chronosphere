@@ -11,10 +11,10 @@ function crudTable({ storeUrl, updateBase, deleteBase, emptyForm }) {
         errors:    {},
 
         openCreate() {
-            this.editMode = false;
-            this.itemId   = null;
-            this.errors   = {};
-            this.form     = emptyForm();
+            this.editMode  = false;
+            this.itemId    = null;
+            this.errors    = {};
+            this.form      = emptyForm();
             this.showModal = true;
         },
 
@@ -52,9 +52,13 @@ function crudTable({ storeUrl, updateBase, deleteBase, emptyForm }) {
                 }
                 if (!res.ok) throw new Error('HTTP ' + res.status);
 
+                window.dispatchEvent(new CustomEvent('toast', { detail: { message: 'Enregistré avec succès', type: 'success' } }));
                 this.closeModal();
-                window.location.reload();
-            } catch(e) { console.error(e); }
+                setTimeout(() => window.location.reload(), 600);
+            } catch(e) {
+                window.dispatchEvent(new CustomEvent('toast', { detail: { message: 'Une erreur est survenue', type: 'error' } }));
+                console.error(e);
+            }
             finally { this.loading = false; }
         },
 
@@ -66,8 +70,12 @@ function crudTable({ storeUrl, updateBase, deleteBase, emptyForm }) {
                     headers: { 'X-CSRF-TOKEN': csrf },
                 });
                 if (!res.ok) throw new Error('HTTP ' + res.status);
-                window.location.reload();
-            } catch(e) { console.error(e); }
+                window.dispatchEvent(new CustomEvent('toast', { detail: { message: 'Supprimé', type: 'success' } }));
+                setTimeout(() => window.location.reload(), 400);
+            } catch(e) {
+                window.dispatchEvent(new CustomEvent('toast', { detail: { message: 'Erreur lors de la suppression', type: 'error' } }));
+                console.error(e);
+            }
         },
     };
 }
