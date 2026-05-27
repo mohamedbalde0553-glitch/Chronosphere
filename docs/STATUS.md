@@ -2,8 +2,14 @@
 
 ## État global
 - Date de démarrage : 2026-05-26
-- Phase actuelle : **Phase C terminée** (polish général)
+- Phase actuelle : **Phase E terminée** (notifications + rapports + services layer)
 - Dernière session : 2026-05-27
+
+## Décision stratégique importante
+- Application Android native (Java) prévue **après** le web, **uniquement pour Module 2 (Employés/Shifts)**
+- Phase F planifiée : API REST Laravel Sanctum pour Module 2 uniquement
+- Les API REST des autres modules ne sont **pas** nécessaires
+- La logique métier de Module 2 est dans des Services (prête pour les contrôleurs API)
 
 ---
 
@@ -157,6 +163,39 @@ Patterns dark mode appliqués :
 - **Librairies** : FullCalendar v6, frappe-gantt, Chart.js, SortableJS, jsPDF, Maatwebsite Excel
 - **Auth** : Laravel Breeze + Spatie laravel-permission
 - **Serveur** : WAMP64, APP_URL=http://localhost/chronosphere/public
+
+---
+
+### Phase D — Tests Feature Laravel (commit 57e0356)
+- 83/83 tests Feature passent (Timetable, Project, Booking, Shifts, Auth)
+- Fix phpunit.xml : `APP_URL=http://localhost` (évite 404 liés au sous-répertoire WAMP)
+- Fix RegistrationTest : `Role::create(['name'=>'cal_user'])` dans setUp (Spatie Permission)
+- Couverture : CRUD complet, validations, workflows métier (conflit réservation, approbation congé)
+
+### Phase E — Notifications + Rapports + Services Layer (commit en cours)
+
+#### E1 — Services Layer (prêt pour Phase F API)
+- `ShiftService` : createShift, updateShift, detectConflicts, computeOvertime, checkWeeklyLimit
+- `LeaveRequestService` : approve (DB transaction + cascade annulation shifts), reject
+- Form Requests : `StoreShiftRequest`, `UpdateShiftRequest`, `StoreLeaveRequest`
+- Contrôleurs refactorisés pour injecter les Services
+
+#### E2 — Notifications in-app + email
+- Table `notifications` créée (canal database Laravel)
+- `ShiftAssigned` : notifie l'employé à la création d'un shift
+- `LeaveRequestApproved` : notifie l'employé à l'approbation
+- `LeaveRequestRejected` : notifie l'employé au refus (avec motif)
+- Cloche de notification dans la topbar (badge unread, dropdown, mark-as-read AJAX)
+- Routes : `GET /notifications`, `POST /notifications/read`
+
+#### E3 — Rapports Module 2
+- Nouvelle page `/shifts/rapports` : filtres période (semaine/mois/custom) + département
+- KPIs : heures travaillées, heures sup, employés actifs, taux absentéisme
+- Tableaux : top 5 employés + heures par département
+- Export PDF (dompdf, A4 paysage) + Export Excel (maatwebsite)
+- Lien "Rapports" ajouté au dashboard RH
+
+---
 
 ## Bugs connus / Fixes appliqués
 - MySQL 9.1 : clé trop longue → `Schema::defaultStringLength(191)` + `ROW_FORMAT=DYNAMIC`

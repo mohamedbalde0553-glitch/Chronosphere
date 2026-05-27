@@ -3,15 +3,18 @@
 namespace App\Modules\Shifts\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Modules\Shifts\Http\Requests\StoreLeaveRequest;
 use App\Modules\Shifts\Models\Employee;
 use App\Modules\Shifts\Models\LeaveRequest;
-use App\Modules\Shifts\Models\Shift;
+use App\Modules\Shifts\Services\LeaveRequestService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class LeaveRequestController extends Controller
 {
+    public function __construct(private readonly LeaveRequestService $leaveService) {}
+
     public function index(): View
     {
         $leaves    = LeaveRequest::with(['employee.user', 'validator'])
@@ -22,17 +25,11 @@ class LeaveRequestController extends Controller
         return view('modules.shifts.leaves.index', compact('leaves', 'employees'));
     }
 
-    public function store(Request $request): JsonResponse
+    public function store(StoreLeaveRequest $request): JsonResponse
     {
-        $data = $request->validate([
-            'employee_id'    => 'required|exists:hr_employees,id',
-            'type'           => 'required|string|in:conge_paye,rtt,maladie,sans_solde,autre',
-            'start_date'     => 'required|date',
-            'end_date'       => 'required|date|after_or_equal:start_date',
-            'reason'         => 'nullable|string',
-        ]);
-
+        $data           = $request->validated();
         $data['status'] = 'pending';
+
         return response()->json(LeaveRequest::create($data), 201);
     }
 
@@ -57,32 +54,14 @@ class LeaveRequestController extends Controller
 
     public function approve(LeaveRequest $leave): JsonResponse
     {
-        $leave->update([
-            'status'       => 'approved',
-            'validated_by' => auth()->id(),
-            'validated_at' => now(),
-        ]);
-
-        // Annuler les shifts qui chevauchent la période de congé
-        $cancelled = Shift::where('employee_id', $leave->employee_id)
-            ->where('status', '!=', 'cancelled')
-            ->where('start_at', '<', $leave->end_date->addDay()->toDateTimeString())
-            ->where('end_at', '>',  $leave->start_date->toDateTimeString())
-            ->update(['status' => 'cancelled']);
-
-        return response()->json(['ok' => true, 'shifts_cancelled' => $cancelled]);
+        $result = $this->leaveService->approve($leave, auth()->id());
+        return response()->json($result);
     }
 
     public function reject(Request $request, LeaveRequest $leave): JsonResponse
     {
-        $data = $request->validate(['rejection_reason' => 'nullable|string']);
-
-        $leave->update([
-            'status'           => 'rejected',
-            'validated_by'     => auth()->id(),
-            'validated_at'     => now(),
-            'rejection_reason' => $data['rejection_reason'] ?? null,
-        ]);
-        return response()->json(['ok' => true]);
+        $data   = $request->validate(['rejection_reason' => 'nullable|string']);
+        $result = $this->leaveService->reject($leave, auth()->id(), $data['rejection_reason'] ?? null);
+        return response()->json($result);
     }
 }

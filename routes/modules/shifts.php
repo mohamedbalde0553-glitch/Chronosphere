@@ -3,6 +3,7 @@
 use App\Modules\Shifts\Http\Controllers\DepartmentController;
 use App\Modules\Shifts\Http\Controllers\EmployeeController;
 use App\Modules\Shifts\Http\Controllers\LeaveRequestController;
+use App\Modules\Shifts\Http\Controllers\RapportController;
 use App\Modules\Shifts\Http\Controllers\ShiftController;
 use App\Modules\Shifts\Http\Controllers\ShiftTypeController;
 use App\Modules\Shifts\Http\Controllers\ShiftsController;
@@ -60,3 +61,8 @@ Route::get('/stats', [StatsController::class, 'index'])->name('stats');
 // Exports
 Route::get('/export/excel', [StatsController::class, 'exportExcel'])->name('export.excel');
 Route::get('/export/pdf-data', [StatsController::class, 'pdfData'])->name('export.pdf-data');
+
+// Rapports
+Route::get('/rapports', [RapportController::class, 'index'])->name('rapports.index');
+Route::get('/rapports/pdf', [RapportController::class, 'exportPdf'])->name('rapports.pdf');
+Route::get('/rapports/excel', [RapportController::class, 'exportExcel'])->name('rapports.excel');

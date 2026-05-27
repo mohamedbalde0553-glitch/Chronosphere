@@ -177,6 +177,43 @@
             <span class="text-sm text-emerald-600 dark:text-emerald-400 font-medium">{{ session('success') }}</span>
             @endif
 
+            {{-- Notification bell --}}
+            <div x-data="notifBell()" x-init="load()" class="relative">
+                <button @click="toggle()"
+                        class="relative w-8 h-8 flex items-center justify-center rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                    </svg>
+                    <span x-show="unread > 0" x-cloak x-text="unread > 9 ? '9+' : unread"
+                          class="absolute -top-1 -right-1 min-w-[16px] h-4 px-0.5 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center leading-none"></span>
+                </button>
+
+                <div x-show="open" x-cloak @click.outside="open=false"
+                     class="absolute right-0 mt-2 w-80 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-lg z-50 overflow-hidden">
+                    <div class="flex items-center justify-between px-4 py-3 border-b border-gray-100 dark:border-gray-700">
+                        <span class="text-sm font-semibold text-gray-900 dark:text-white">Notifications</span>
+                        <button @click="markAll()" class="text-xs text-indigo-600 dark:text-indigo-400 hover:underline">Tout marquer lu</button>
+                    </div>
+                    <div class="max-h-72 overflow-y-auto divide-y divide-gray-100 dark:divide-gray-700">
+                        <template x-if="notifications.length === 0">
+                            <p class="px-4 py-6 text-sm text-center text-gray-400 dark:text-gray-500">Aucune notification</p>
+                        </template>
+                        <template x-for="n in notifications" :key="n.id">
+                            <a :href="n.url || '#'" @click="markOne(n.id)"
+                               class="flex items-start gap-3 px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                               :class="n.read ? 'opacity-60' : ''">
+                                <span class="mt-0.5 w-2 h-2 rounded-full shrink-0"
+                                      :class="n.read ? 'bg-gray-300 dark:bg-gray-600' : 'bg-indigo-500'"></span>
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-xs text-gray-700 dark:text-gray-300 leading-snug" x-text="n.message"></p>
+                                    <p class="text-[11px] text-gray-400 dark:text-gray-500 mt-0.5" x-text="n.created_at"></p>
+                                </div>
+                            </a>
+                        </template>
+                    </div>
+                </div>
+            </div>
+
             {{-- Dark mode toggle --}}
             <button @click="toggleDark()"
                     class="w-8 h-8 flex items-center justify-center rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
@@ -243,5 +280,52 @@
 </div>
 
 @stack('scripts')
+<script>
+function notifBell() {
+    return {
+        open: false,
+        unread: 0,
+        notifications: [],
+        load() {
+            fetch('{{ route('notifications.index') }}', {
+                headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
+            })
+            .then(r => r.json())
+            .then(d => { this.notifications = d.notifications; this.unread = d.unread_count; });
+        },
+        toggle() {
+            this.open = !this.open;
+            if (this.open) this.load();
+        },
+        markOne(id) {
+            const n = this.notifications.find(x => x.id === id);
+            if (n && !n.read) {
+                n.read = true;
+                this.unread = Math.max(0, this.unread - 1);
+                fetch('{{ route('notifications.read') }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content,
+                    },
+                    body: JSON.stringify({ id }),
+                });
+            }
+        },
+        markAll() {
+            this.notifications.forEach(n => n.read = true);
+            this.unread = 0;
+            fetch('{{ route('notifications.read') }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content,
+                },
+                body: JSON.stringify({}),
+            });
+        },
+    };
+}
+</script>
 </body>
 </html>

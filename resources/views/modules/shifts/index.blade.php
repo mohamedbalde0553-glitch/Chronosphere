@@ -10,6 +10,13 @@
                 <p class="text-sm text-gray-500 dark:text-gray-400 mt-0.5">Semaine du {{ now()->startOfWeek()->translatedFormat('d F Y') }}</p>
             </div>
             <div class="flex gap-2">
+                <a href="{{ route('shifts.rapports.index') }}"
+                   class="flex items-center gap-1.5 px-3 py-2 text-sm text-indigo-700 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/30 border border-indigo-200 dark:border-indigo-800 rounded-lg hover:bg-indigo-100 dark:hover:bg-indigo-900/50 transition-colors font-medium">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                    </svg>
+                    Rapports
+                </a>
                 <a href="{{ route('shifts.export.excel') }}"
                    class="flex items-center gap-1.5 px-3 py-2 text-sm text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/30 border border-emerald-200 dark:border-emerald-800 rounded-lg hover:bg-emerald-100 dark:hover:bg-emerald-900/50 transition-colors font-medium">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
