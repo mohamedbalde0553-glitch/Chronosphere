@@ -7,6 +7,7 @@ use App\Http\Resources\Api\EmployeeResource;
 use App\Http\Resources\Api\LeaveRequestResource;
 use App\Http\Resources\Api\ShiftResource;
 use App\Modules\Shifts\Models\Employee;
+use App\Modules\Shifts\Models\LeaveRequest;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -130,5 +131,61 @@ class EmployeeApiController extends Controller
         }
 
         return LeaveRequestResource::collection($query->paginate($request->integer('per_page', 20)));
+    }
+
+    public function storeLeaveRequest(Request $request, Employee $employee): JsonResponse
+    {
+        $this->authorize('viewLeaveRequests', $employee);
+
+        $user = $request->user();
+        if ($user->hasRole('hr_employee')) {
+            $myEmployee = Employee::where('user_id', $user->id)->firstOrFail();
+            if ($myEmployee->id !== $employee->id) {
+                abort(403);
+            }
+        }
+
+        $data = $request->validate([
+            'leave_type' => 'required|in:conge_paye,maladie,sans_solde,autre',
+            'start_date' => 'required|date|after_or_equal:today',
+            'end_date'   => 'required|date|after_or_equal:start_date',
+            'reason'     => 'nullable|string|max:500',
+        ]);
+
+        $leave = $employee->leaveRequests()->create([
+            ...$data,
+            'status' => 'pending',
+        ]);
+
+        return (new LeaveRequestResource($leave))->response()->setStatusCode(201);
+    }
+
+    public function approveLeaveRequest(Request $request, LeaveRequest $leaveRequest): JsonResponse
+    {
+        $this->authorize('validateLeave', $leaveRequest);
+
+        $leaveRequest->update([
+            'status'       => 'approved',
+            'validated_by' => $request->user()->id,
+            'validated_at' => now(),
+        ]);
+
+        return response()->json(['message' => 'Congé approuvé.', 'data' => new LeaveRequestResource($leaveRequest)]);
+    }
+
+    public function rejectLeaveRequest(Request $request, LeaveRequest $leaveRequest): JsonResponse
+    {
+        $this->authorize('validateLeave', $leaveRequest);
+
+        $request->validate(['reason' => 'required|string|max:255']);
+
+        $leaveRequest->update([
+            'status'           => 'rejected',
+            'rejection_reason' => $request->reason,
+            'validated_by'     => $request->user()->id,
+            'validated_at'     => now(),
+        ]);
+
+        return response()->json(['message' => 'Congé refusé.', 'data' => new LeaveRequestResource($leaveRequest)]);
     }
 }

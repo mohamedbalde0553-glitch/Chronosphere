@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">ChronoSphere</string>
+    <string name="login">Se connecter</string>
+    <string name="logout">Déconnexion</string>
+    <string name="employees">Employés</string>
+    <string name="shifts">Shifts</string>
+    <string name="leaves">Congés</string>
+</resources>

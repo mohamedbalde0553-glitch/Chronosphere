@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Modules\Shifts\Models\Employee;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -34,13 +35,19 @@ class AuthController extends Controller
 
         $token = $user->createToken('android-app')->plainTextToken;
 
+        $employee   = Employee::where('user_id', $user->id)->first();
+        $roles      = $user->getRoleNames();
+        $primaryRole = $roles->first() ?? '';
+
         return response()->json([
             'token' => $token,
             'user'  => [
-                'id'     => $user->id,
-                'name'   => $user->name,
-                'email'  => $user->email,
-                'avatar' => $user->avatar,
+                'id'          => $user->id,
+                'name'        => $user->name,
+                'email'       => $user->email,
+                'avatar'      => $user->avatar,
+                'role'        => $primaryRole,
+                'employee_id' => $employee?->id ?? -1,
             ],
         ]);
     }

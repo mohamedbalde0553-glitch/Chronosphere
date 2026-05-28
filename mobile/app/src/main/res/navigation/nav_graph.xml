@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/employeeListFragment">
+
+    <fragment
+        android:id="@+id/employeeListFragment"
+        android:name="com.chronosphere.mobile.ui.employees.EmployeeListFragment"
+        android:label="Employés">
+        <action
+            android:id="@+id/action_list_to_detail"
+            app:destination="@id/employeeDetailFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/employeeDetailFragment"
+        android:name="com.chronosphere.mobile.ui.employees.EmployeeDetailFragment"
+        android:label="Fiche employé">
+        <argument
+            android:name="employee_id"
+            app:argType="integer"
+            android:defaultValue="-1" />
+        <argument
+            android:name="employee_name"
+            app:argType="string"
+            android:defaultValue="" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/shiftFragment"
+        android:name="com.chronosphere.mobile.ui.shifts.ShiftFragment"
+        android:label="Mes shifts" />
+
+    <fragment
+        android:id="@+id/leaveFragment"
+        android:name="com.chronosphere.mobile.ui.leave.LeaveFragment"
+        android:label="Congés" />
+
+</navigation>

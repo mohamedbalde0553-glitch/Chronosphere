@@ -26,8 +26,13 @@ Route::middleware('auth:sanctum')->group(function () {
     // Sous-ressources d'un employé
     Route::get('employees/{employee}/shifts',          [EmployeeApiController::class,      'shifts']);
     Route::get('employees/{employee}/leave-requests',  [EmployeeApiController::class,      'leaveRequests']);
+    Route::post('employees/{employee}/leave-requests', [EmployeeApiController::class,      'storeLeaveRequest']);
     Route::get('employees/{employee}/schedule',        [WorkScheduleApiController::class,  'employeeSchedule']);
     Route::post('employees/{employee}/schedule-override', [WorkScheduleApiController::class, 'storeOverride']);
+
+    // Actions sur les congés (manager)
+    Route::put('leave-requests/{leaveRequest}/approve', [EmployeeApiController::class, 'approveLeaveRequest']);
+    Route::put('leave-requests/{leaveRequest}/reject',  [EmployeeApiController::class, 'rejectLeaveRequest']);
 
     // Horaires périodiques
     Route::apiResource('work-schedules', WorkScheduleApiController::class);

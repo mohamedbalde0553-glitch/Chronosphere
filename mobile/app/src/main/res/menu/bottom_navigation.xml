@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/employeeListFragment"
+        android:icon="@drawable/ic_people"
+        android:title="Employés" />
+
+    <item
+        android:id="@+id/shiftFragment"
+        android:icon="@drawable/ic_calendar"
+        android:title="Shifts" />
+
+    <item
+        android:id="@+id/leaveFragment"
+        android:icon="@drawable/ic_leave"
+        android:title="Congés" />
+
+</menu>
