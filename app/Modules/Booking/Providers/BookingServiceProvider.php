@@ -14,7 +14,7 @@ class BookingServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        Route::middleware(['web', 'auth', 'verified'])
+        Route::middleware(['web', 'auth', 'verified', 'module.access:booking'])
             ->prefix('booking')
             ->name('booking.')
             ->group(base_path('routes/modules/booking.php'));

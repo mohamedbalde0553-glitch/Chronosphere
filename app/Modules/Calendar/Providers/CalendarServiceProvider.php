@@ -14,7 +14,7 @@ class CalendarServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        Route::middleware(['web', 'auth', 'verified'])
+        Route::middleware(['web', 'auth', 'verified', 'module.access:calendar'])
             ->prefix('calendar')
             ->name('calendar.')
             ->group(base_path('routes/modules/calendar.php'));

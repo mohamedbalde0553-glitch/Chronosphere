@@ -30,7 +30,8 @@
         {{-- Toolbar --}}
         <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 px-4 py-3 flex flex-wrap items-center gap-3">
 
-            {{-- Filter by --}}
+            @if(!($isStudent ?? false) && !($isTeacher ?? false))
+            {{-- Filter by (admin / uni_admin uniquement) --}}
             <div class="flex items-center gap-2 text-sm">
                 <span class="text-gray-500 dark:text-gray-400 font-medium">Voir par :</span>
                 <select x-model="filterType" @change="applyFilter()"
@@ -41,7 +42,6 @@
                 </select>
             </div>
 
-            {{-- Filter selector --}}
             <div x-show="filterType === 'group'">
                 <select x-model="filterId" @change="applyFilter()"
                         class="px-3 py-1.5 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-400">
@@ -74,12 +74,24 @@
                     @endforeach
                 </select>
             </div>
+            @else
+            {{-- Étudiant / Enseignant : label fixe --}}
+            <div class="flex items-center gap-2 text-sm">
+                <span class="text-gray-500 dark:text-gray-400 font-medium">
+                    @if($isStudent ?? false) Emploi du temps de mon groupe
+                    @else Mon planning
+                    @endif
+                </span>
+            </div>
+            @endif
 
             <div class="ml-auto flex items-center gap-2">
+                @if(!($isStudent ?? false) && !($isTeacher ?? false))
                 <a href="{{ route('timetable.index') }}"
                    class="px-3 py-1.5 text-sm text-gray-600 dark:text-gray-300 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
                     ← Retour
                 </a>
+                @can('timetable.create')
                 <button @click="openGenerateModal()"
                         class="flex items-center gap-1.5 px-4 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-lg transition-colors">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -94,6 +106,8 @@
                     </svg>
                     Ajouter une séance
                 </button>
+                @endcan
+                @endif
             </div>
         </div>
 

@@ -14,7 +14,7 @@ class TimetableServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        Route::middleware(['web', 'auth', 'verified'])
+        Route::middleware(['web', 'auth', 'verified', 'module.access:timetable'])
             ->prefix('timetable')
             ->name('timetable.')
             ->group(base_path('routes/modules/timetable.php'));

@@ -14,7 +14,7 @@ class Student extends Model
     protected $table = 'uni_students';
 
     protected $fillable = [
-        'user_id', 'class_group_id', 'student_number', 'enrollment_date', 'status',
+        'user_id', 'class_group_id', 'student_code', 'enrollment_date',
     ];
 
     protected function casts(): array
@@ -34,6 +34,6 @@ class Student extends Model
 
     public function scopeActive($query)
     {
-        return $query->where('status', 'active');
+        return $query->whereNull('deleted_at');
     }
 }

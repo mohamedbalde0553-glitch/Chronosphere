@@ -22,7 +22,10 @@ class EnsureModuleAccess
             $permission = $this->modulePermissions[$module];
 
             if (!$request->user()?->can($permission)) {
-                abort(403, __('core.module_access_denied'));
+                if ($request->expectsJson()) {
+                    return response()->json(['message' => 'Accès refusé à ce module.'], 403);
+                }
+                abort(403, 'Accès refusé à ce module.');
             }
         }
 

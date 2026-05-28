@@ -16,6 +16,44 @@ class ShiftsController extends Controller
 {
     public function index(): View
     {
+        $user     = auth()->user();
+        $employee = Employee::where('user_id', $user->id)->first();
+
+        // hr_employee : tableau de bord personnel uniquement
+        if ($user->hasRole('hr_employee') && $employee) {
+            $startWeek = now()->startOfWeek()->toDateTimeString();
+            $endWeek   = now()->endOfWeek()->toDateTimeString();
+
+            $stats = [
+                'shifts_week'    => Shift::where('employee_id', $employee->id)->inRange($startWeek, $endWeek)->count(),
+                'shifts_month'   => Shift::where('employee_id', $employee->id)
+                                        ->inRange(now()->startOfMonth()->toDateTimeString(), now()->endOfMonth()->toDateTimeString())
+                                        ->count(),
+                'leaves_pending' => LeaveRequest::where('employee_id', $employee->id)->pending()->count(),
+                'leaves_approved'=> LeaveRequest::where('employee_id', $employee->id)->approved()
+                                        ->whereYear('start_date', now()->year)->count(),
+            ];
+
+            $upcomingShifts = Shift::with(['shiftType'])
+                ->where('employee_id', $employee->id)
+                ->where('start_at', '>=', now())
+                ->where('start_at', '<=', now()->addDays(14))
+                ->where('status', 'planned')
+                ->orderBy('start_at')
+                ->limit(10)
+                ->get();
+
+            $myLeaves = LeaveRequest::where('employee_id', $employee->id)
+                ->orderByDesc('created_at')
+                ->limit(5)
+                ->get();
+
+            return view('modules.shifts.employee_dashboard', compact(
+                'employee', 'stats', 'upcomingShifts', 'myLeaves'
+            ));
+        }
+
+        // Vue manager / admin
         $stats = [
             'employees'      => Employee::active()->count(),
             'departments'    => Department::count(),
@@ -45,12 +83,21 @@ class ShiftsController extends Controller
 
     public function planning(Request $request): View
     {
+        $user     = auth()->user();
+        $employee = Employee::where('user_id', $user->id)->first();
+
         $departments = Department::orderBy('name')->get();
         $employees   = Employee::with(['user', 'department'])->active()->orderBy('id')->get();
         $shiftTypes  = ShiftType::orderBy('name')->get();
 
         $filterType = $request->get('by', 'department');
         $filterId   = $request->get('id', $departments->first()?->id);
+
+        // hr_employee : force sur son propre planning
+        if ($user->hasRole('hr_employee') && $employee) {
+            $filterType = 'employee';
+            $filterId   = $employee->id;
+        }
 
         return view('modules.shifts.planning', compact(
             'departments', 'employees', 'shiftTypes', 'filterType', 'filterId'
@@ -59,10 +106,19 @@ class ShiftsController extends Controller
 
     public function feed(Request $request): JsonResponse
     {
+        $user     = auth()->user();
+        $employee = Employee::where('user_id', $user->id)->first();
+
         $start      = $request->query('start', now()->startOfWeek()->toDateTimeString());
         $end        = $request->query('end', now()->endOfWeek()->toDateTimeString());
         $filterType = $request->query('by', 'department');
         $filterId   = $request->query('id');
+
+        // Sécurité : hr_employee ne peut voir QUE ses propres shifts
+        if ($user->hasRole('hr_employee') && $employee) {
+            $filterType = 'employee';
+            $filterId   = $employee->id;
+        }
 
         $query = Shift::with(['employee.user', 'shiftType'])
             ->inRange($start, $end)
@@ -94,7 +150,6 @@ class ShiftsController extends Controller
             ],
         ]);
 
-        // Approved leaves as allDay background events
         $leaveQuery = LeaveRequest::with(['employee.user'])
             ->approved()
             ->where('start_date', '<=', substr($end, 0, 10))

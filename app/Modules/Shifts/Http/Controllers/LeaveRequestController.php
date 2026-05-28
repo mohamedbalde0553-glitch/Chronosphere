@@ -17,18 +17,36 @@ class LeaveRequestController extends Controller
 
     public function index(): View
     {
-        $leaves    = LeaveRequest::with(['employee.user', 'validator'])
-                        ->orderByDesc('created_at')
-                        ->paginate(20);
-        $employees = Employee::with('user')->active()->get();
+        $user     = auth()->user();
+        $employee = Employee::where('user_id', $user->id)->first();
+
+        $query = LeaveRequest::with(['employee.user', 'validator'])->orderByDesc('created_at');
+
+        // hr_employee ne voit que ses propres congés
+        if ($user->hasRole('hr_employee') && $employee) {
+            $query->where('employee_id', $employee->id);
+        }
+
+        $leaves    = $query->paginate(20);
+        $employees = $user->hasRole('hr_employee')
+            ? collect([$employee])->filter()
+            : Employee::with('user')->active()->get();
 
         return view('modules.shifts.leaves.index', compact('leaves', 'employees'));
     }
 
     public function store(StoreLeaveRequest $request): JsonResponse
     {
+        $user     = auth()->user();
+        $employee = Employee::where('user_id', $user->id)->first();
+
         $data           = $request->validated();
         $data['status'] = 'pending';
+
+        // hr_employee ne peut soumettre que pour lui-même
+        if ($user->hasRole('hr_employee') && $employee) {
+            $data['employee_id'] = $employee->id;
+        }
 
         return response()->json(LeaveRequest::create($data), 201);
     }

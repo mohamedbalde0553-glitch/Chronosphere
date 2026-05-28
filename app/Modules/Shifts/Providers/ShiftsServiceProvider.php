@@ -14,7 +14,7 @@ class ShiftsServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        Route::middleware(['web', 'auth', 'verified'])
+        Route::middleware(['web', 'auth', 'verified', 'module.access:shifts'])
             ->prefix('shifts')
             ->name('shifts.')
             ->group(base_path('routes/modules/shifts.php'));

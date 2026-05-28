@@ -14,7 +14,7 @@ class ProjectServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        Route::middleware(['web', 'auth', 'verified'])
+        Route::middleware(['web', 'auth', 'verified', 'module.access:project'])
             ->prefix('project')
             ->name('project.')
             ->group(base_path('routes/modules/project.php'));
