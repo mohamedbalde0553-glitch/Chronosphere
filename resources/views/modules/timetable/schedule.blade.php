@@ -228,6 +228,7 @@
             </div>
         </div>
 
+        @can('timetable.create')
         {{-- Modal : Génération automatique des séances --}}
         <div x-show="showGenerateModal" x-cloak
              class="fixed inset-0 z-50 flex items-center justify-center p-4"
@@ -313,6 +314,7 @@
                 </div>
             </div>
         </div>
+        @endcan
 
     </div>
 
