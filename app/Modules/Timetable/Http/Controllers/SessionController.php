@@ -3,12 +3,42 @@
 namespace App\Modules\Timetable\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Modules\Timetable\Models\Course;
 use App\Modules\Timetable\Models\CourseSession;
+use App\Modules\Timetable\Services\TimetableGeneratorService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class SessionController extends Controller
 {
+    public function generateFromSchedule(Request $request, Course $course): JsonResponse
+    {
+        $data = $request->validate([
+            'time_slot_id'   => 'required|exists:uni_time_slots,id',
+            'room_id'        => 'nullable|exists:uni_rooms,id',
+            'excluded_dates' => 'nullable|array',
+            'excluded_dates.*' => 'date',
+        ]);
+
+        if (!$course->semester) {
+            return response()->json(['error' => 'Ce cours n\'est associé à aucun semestre.'], 422);
+        }
+
+        $result = (new TimetableGeneratorService())->generate(
+            $course->id,
+            $data['time_slot_id'],
+            $data['room_id'] ?? null,
+            $data['excluded_dates'] ?? [],
+        );
+
+        return response()->json([
+            'message' => "{$result['created']} séance(s) créée(s)."
+                . ($result['skipped_duplicate'] ? " {$result['skipped_duplicate']} doublon(s) ignoré(s)." : '')
+                . ($result['skipped_conflict']  ? " {$result['skipped_conflict']} conflit(s) de salle ignoré(s)." : ''),
+            'result'  => $result,
+        ]);
+    }
+
     public function store(Request $request): JsonResponse
     {
         $data = $request->validate([

@@ -21,7 +21,7 @@ class EmployeeController extends Controller
     {
         $employees   = Employee::with(['user', 'department', 'position'])->orderBy('id')->paginate(60);
         $departments = Department::orderBy('name')->get();
-        $positions   = Position::orderBy('name')->get();
+        $positions   = Position::orderBy('title')->get();
         $users       = User::doesntHave('employee')->orderBy('name')->get(['id', 'name', 'email']);
 
         return view('modules.shifts.employees.index', compact('employees', 'departments', 'positions', 'users'));

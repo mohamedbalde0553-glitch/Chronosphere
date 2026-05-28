@@ -21,6 +21,9 @@ Route::put('/sessions/{session}', [SessionController::class, 'update'])->name('s
 Route::delete('/sessions/{session}', [SessionController::class, 'destroy'])->name('sessions.destroy');
 Route::get('/sessions/{session}/conflicts', [SessionController::class, 'conflicts'])->name('sessions.conflicts');
 
+// Génération automatique des séances d'un cours sur tout le semestre
+Route::post('/courses/{course}/generate-sessions', [SessionController::class, 'generateFromSchedule'])->name('courses.generate-sessions');
+
 // Salles
 Route::get('/rooms', [RoomController::class, 'index'])->name('rooms.index');
 Route::post('/rooms', [RoomController::class, 'store'])->name('rooms.store');

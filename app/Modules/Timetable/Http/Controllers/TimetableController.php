@@ -10,6 +10,7 @@ use App\Modules\Timetable\Models\CourseSession;
 use App\Modules\Timetable\Models\Room;
 use App\Modules\Timetable\Models\Subject;
 use App\Modules\Timetable\Models\Teacher;
+use App\Modules\Timetable\Models\TimeSlot;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -40,17 +41,18 @@ class TimetableController extends Controller
 
     public function schedule(Request $request): View
     {
-        $groups   = ClassGroup::with('level')->orderBy('name')->get();
-        $teachers = Teacher::with('user')->orderBy('id')->get();
-        $rooms    = Room::where('is_active', true)->orderBy('code')->get();
-        $subjects = Subject::orderBy('name')->get();
-        $courses  = Course::with(['subject', 'teacher.user', 'classGroup'])->get();
+        $groups    = ClassGroup::with('level')->orderBy('name')->get();
+        $teachers  = Teacher::with('user')->orderBy('id')->get();
+        $rooms     = Room::where('is_active', true)->orderBy('code')->get();
+        $subjects  = Subject::orderBy('name')->get();
+        $courses   = Course::with(['subject', 'teacher.user', 'classGroup', 'semester'])->get();
+        $timeSlots = TimeSlot::orderBy('order')->orderBy('start_time')->get();
 
         $filterType = $request->get('by', 'group');
         $filterId   = $request->get('id', $groups->first()?->id);
 
         return view('modules.timetable.schedule', compact(
-            'groups', 'teachers', 'rooms', 'subjects', 'courses', 'filterType', 'filterId'
+            'groups', 'teachers', 'rooms', 'subjects', 'courses', 'timeSlots', 'filterType', 'filterId'
         ));
     }
 

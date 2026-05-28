@@ -1,6 +1,15 @@
 <x-app-layout>
     <x-slot name="title">Rapports RH</x-slot>
 
+    {{-- En-tête --}}
+    <div class="flex items-center justify-between mb-4">
+        <h2 class="text-lg font-bold text-gray-900 dark:text-white">Rapports RH</h2>
+        <a href="{{ route('shifts.index') }}"
+           class="px-3 py-2 text-sm text-gray-600 dark:text-gray-300 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+            ← Retour
+        </a>
+    </div>
+
     {{-- Filtres --}}
     <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4 mb-6">
         <form method="GET" action="{{ route('shifts.rapports.index') }}" class="flex flex-wrap items-end gap-3">

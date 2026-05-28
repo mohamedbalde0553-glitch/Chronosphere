@@ -76,6 +76,17 @@
             </div>
 
             <div class="ml-auto flex items-center gap-2">
+                <a href="{{ route('timetable.index') }}"
+                   class="px-3 py-1.5 text-sm text-gray-600 dark:text-gray-300 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                    ← Retour
+                </a>
+                <button @click="openGenerateModal()"
+                        class="flex items-center gap-1.5 px-4 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-lg transition-colors">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                    </svg>
+                    Générer séances
+                </button>
                 <button @click="openNewSession()"
                         class="flex items-center gap-1.5 px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg transition-colors">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
@@ -203,35 +214,130 @@
             </div>
         </div>
 
+        {{-- Modal : Génération automatique des séances --}}
+        <div x-show="showGenerateModal" x-cloak
+             class="fixed inset-0 z-50 flex items-center justify-center p-4"
+             @keydown.escape.window="closeGenerateModal()">
+            <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" @click="closeGenerateModal()"></div>
+            <div class="relative bg-white dark:bg-gray-800 rounded-2xl shadow-xl w-full max-w-md z-10" @click.stop>
+
+                <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-gray-700">
+                    <div>
+                        <h3 class="text-base font-semibold text-gray-900 dark:text-white">Générer les séances d'un cours</h3>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Crée automatiquement toutes les séances sur toute la durée du semestre.</p>
+                    </div>
+                    <button @click="closeGenerateModal()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+
+                <div class="px-6 py-5 space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Cours <span class="text-red-500">*</span></label>
+                        <select x-model="generateForm.course_id"
+                                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                            <option value="">— Sélectionner un cours —</option>
+                            @foreach($courses as $c)
+                            <option value="{{ $c->id }}">
+                                {{ $c->subject->name }} · {{ $c->classGroup?->name ?? '—' }}
+                                @if($c->semester) ({{ $c->semester->name }}) @endif
+                            </option>
+                            @endforeach
+                        </select>
+                        <p class="mt-1 text-xs text-gray-400 dark:text-gray-500">Le cours doit être rattaché à un semestre avec des dates de début/fin.</p>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Créneau horaire <span class="text-red-500">*</span></label>
+                        <select x-model="generateForm.time_slot_id"
+                                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                            <option value="">— Sélectionner un créneau —</option>
+                            @php
+                                $dayNames = ['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'];
+                            @endphp
+                            @foreach($timeSlots as $slot)
+                            <option value="{{ $slot->id }}">
+                                {{ $dayNames[$slot->day_of_week] ?? '?' }} · {{ $slot->name }}
+                                ({{ substr($slot->start_time,0,5) }} – {{ substr($slot->end_time,0,5) }})
+                            </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Salle (optionnel)</label>
+                        <select x-model="generateForm.room_id"
+                                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                            <option value="">— Sans salle assignée —</option>
+                            @foreach($rooms as $r)
+                            <option value="{{ $r->id }}">{{ $r->code }} — {{ $r->name }} ({{ $r->capacity }} pl.)</option>
+                            @endforeach
+                        </select>
+                        <p class="mt-1 text-xs text-gray-400 dark:text-gray-500">Les créneaux où la salle est déjà occupée seront ignorés.</p>
+                    </div>
+
+                    <div x-show="generateResult" x-cloak
+                         class="rounded-lg p-3 text-sm font-medium"
+                         :class="generateResult?.ok ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300' : 'bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-300'"
+                         x-text="generateResult?.message">
+                    </div>
+                </div>
+
+                <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
+                    <button @click="closeGenerateModal()" class="px-4 py-2 text-sm border border-gray-300 dark:border-gray-600 dark:text-gray-300 rounded-lg bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">Fermer</button>
+                    <button @click="generate()" :disabled="generateLoading || !generateForm.course_id || !generateForm.time_slot_id"
+                            class="flex items-center gap-2 px-5 py-2 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg disabled:opacity-60 transition-colors">
+                        <svg x-show="generateLoading" class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                        </svg>
+                        <span x-show="!generateLoading">Générer</span>
+                        <span x-show="generateLoading">Génération…</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
     </div>
 
     @push('scripts')
     <script>
         window.csTimetableUrls = {
-            store:      '{{ route('timetable.sessions.store') }}',
-            updateBase: '{{ url('timetable/sessions/__ID__') }}',
-            deleteBase: '{{ url('timetable/sessions/__ID__') }}',
+            store:        '{{ route('timetable.sessions.store') }}',
+            updateBase:   '{{ url('timetable/sessions/__ID__') }}',
+            deleteBase:   '{{ url('timetable/sessions/__ID__') }}',
+            generateBase: '{{ url('timetable/courses/__ID__/generate-sessions') }}',
         };
 
         function scheduleApp() {
             const csrf = document.querySelector('meta[name="csrf-token"]').content;
 
             return {
-                filterType: '{{ $filterType }}',
-                filterId:   '{{ $filterId }}',
-                showModal:  false,
-                editMode:   false,
-                loading:    false,
-                sessionId:  null,
-                pendingData:null,
-                conflicts:  [],
-                errors:     {},
+                filterType:         '{{ $filterType }}',
+                filterId:           '{{ $filterId }}',
+                showModal:          false,
+                showGenerateModal:  false,
+                editMode:           false,
+                loading:            false,
+                generateLoading:    false,
+                generateResult:     null,
+                sessionId:          null,
+                pendingData:        null,
+                conflicts:          [],
+                errors:             {},
                 form: {
                     course_id: '',
                     room_id:   '',
                     start_at:  '',
                     end_at:    '',
                     notes:     '',
+                },
+                generateForm: {
+                    course_id:    '',
+                    time_slot_id: '',
+                    room_id:      '',
                 },
 
                 applyFilter() {
@@ -312,6 +418,37 @@
                 async forceSave() {
                     this.showModal = true;
                     await this.saveSession(true);
+                },
+
+                openGenerateModal() {
+                    this.generateForm  = { course_id: '', time_slot_id: '', room_id: '' };
+                    this.generateResult = null;
+                    this.showGenerateModal = true;
+                },
+                closeGenerateModal() { this.showGenerateModal = false; },
+
+                async generate() {
+                    if (!this.generateForm.course_id || !this.generateForm.time_slot_id) return;
+                    this.generateLoading = true;
+                    this.generateResult  = null;
+                    try {
+                        const url = window.csTimetableUrls.generateBase.replace('__ID__', this.generateForm.course_id);
+                        const res = await fetch(url, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrf },
+                            body: JSON.stringify({
+                                time_slot_id: this.generateForm.time_slot_id,
+                                room_id:      this.generateForm.room_id || null,
+                            }),
+                        });
+                        const d = await res.json();
+                        this.generateResult = { ok: res.ok, message: d.message ?? d.error };
+                        if (res.ok) window.dispatchEvent(new CustomEvent('cs:refresh-timetable'));
+                    } catch(e) {
+                        this.generateResult = { ok: false, message: 'Erreur réseau.' };
+                    } finally {
+                        this.generateLoading = false;
+                    }
                 },
 
                 async deleteSession() {

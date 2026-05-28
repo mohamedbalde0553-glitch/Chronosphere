@@ -59,6 +59,10 @@
             </div>
 
             <div class="ml-auto flex items-center gap-2">
+                <a href="{{ route('booking.index') }}"
+                   class="px-3 py-1.5 text-sm text-gray-600 dark:text-gray-300 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                    ← Retour
+                </a>
                 <button @click="openNewBooking()"
                         class="flex items-center gap-1.5 px-4 py-1.5 bg-orange-600 hover:bg-orange-700 text-white text-sm font-semibold rounded-lg transition-colors">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">

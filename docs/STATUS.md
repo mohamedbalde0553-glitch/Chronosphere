@@ -2,8 +2,8 @@
 
 ## État global
 - Date de démarrage : 2026-05-26
-- Phase actuelle : **Phase L terminée** (Documentation finale)
-- Dernière session : 2026-05-27
+- Phase actuelle : **Phase M terminée** (Corrections, génération automatique, jeu de données microfinance)
+- Dernière session : 2026-05-28
 
 ## Décision stratégique importante
 - Application Android native (Java) prévue **après** le web, **uniquement pour Module 2 (Employés/Shifts)**
@@ -14,6 +14,76 @@
 ---
 
 ## Phases terminées
+
+### Phase M — Corrections, auto-génération timetable, scénario microfinance (2026-05-28)
+
+#### M.1 — Nettoyage fichiers obsolètes
+- Suppression `docs/correction.txt`, `docs/mise a jour.txt`, `docs/nouveau.txt`, `docs/sanctum.txt`
+  (prompts de phase et notes Android obsolètes)
+
+#### M.2 — Auto-génération des séances sur un semestre entier
+- Nouveau `app/Modules/Timetable/Services/TimetableGeneratorService.php`
+  - Itère jour par jour entre `semester.start_date` et `semester.end_date`
+  - Crée une `CourseSession` pour chaque jour correspondant au `day_of_week` du `TimeSlot`
+  - Gestion : doublons (même cours + même heure), conflits de salle, dates exclues (jours fériés)
+  - Retourne `{ created, skipped_duplicate, skipped_conflict }`
+- `SessionController::generateFromSchedule()` — endpoint `POST /timetable/courses/{course}/generate-sessions`
+- Vue `schedule.blade.php` : modal Alpine.js "Générer séances" avec sélecteur cours / créneau / salle + affichage du résultat
+
+#### M.3 — Boutons "← Retour" manquants
+- `shifts/planning.blade.php` — lien retour vers `/shifts`
+- `shifts/rapports/index.blade.php` — lien retour vers `/shifts`
+- `booking/calendar.blade.php` — lien retour vers `/booking`
+- `timetable/schedule.blade.php` — lien retour vers `/timetable`
+
+#### M.4 — Carte employé cliquable (trombinoscope)
+- `shifts/employees/index.blade.php` : `@click` sur la carte → navigate vers `shifts/employees/{id}`
+- Boutons Modifier et Supprimer : `@click.stop` pour ne pas déclencher la navigation
+
+#### M.5 — Corrections de bugs
+- `EmployeeController::index()` : `Position::orderBy('name')` → `Position::orderBy('title')` (colonne réelle en BDD)
+- Migration `add_day_of_week_to_uni_time_slots` : colonne `day_of_week` absente de la table (présente dans `$fillable` mais jamais créée)
+- Migration `add_color_description_to_hr_departments` : colonnes `color` et `description` absentes (500 à la création de département)
+- `uni_course_sessions.created_by` NOT NULL sans default : modifié en `NULL DEFAULT NULL` + `created_by` ajouté dans `TimetableGeneratorService`
+- Types de congés `MicrofinanceSeeder` : `annual/sick/maternity/unpaid/compassionate` → `conge_paye/maladie/conge_paye/sans_solde/autre`
+- Champ congé : `approved_by` → `validated_by` + `validated_at` ajouté (cohérence modèle `LeaveRequest`)
+- Mise à jour des 50 enregistrements DB avec les bons types via `DB::table()->update()`
+
+#### M.6 — Seeders de données complètes
+- `database/seeders/MicrofinanceSeeder.php` — scénario entreprise microfinance :
+  - 10 départements (DG, CREDIT, EPARGNE, COMPTA, RH, IT, COMM, RECOUVR, AUDIT, JURIDIQUE)
+  - 22 postes (Directeur Général → Stagiaire, avec `base_hourly_rate`)
+  - 4 types de shift (Journée, Matin, Guichet, Nuit) + 10 compétences métier
+  - 3 horaires périodiques avec `WorkScheduleDay`
+  - 157 employés avec comptes utilisateurs (email: `prenom.nom{N}@microfinance.mf`, mdp: `password`)
+  - ~8 348 shifts sur 3 mois passés + 2 semaines à venir (taux présence 88 %)
+  - 50 demandes de congé avec statuts variés (approved/rejected/pending/cancelled)
+
+- `database/seeders/AllModulesSeeder.php` — données inter-modules :
+  - **Timetable** : Faculté FSEG, année 2025-2026, 2 semestres, 5 niveaux (L1→M2), 6 salles, 8 matières, 12 créneaux (avec `day_of_week`), 5 enseignants, 5 groupes, 8 cours, 128 séances
+  - **Booking** : 4 catégories, 7 ressources (Salle Conseil, Toyota Hilux ×2, Vidéoprojecteur…), 28 réservations
+  - **Project** : 4 projets (Digitalisation Crédit, Formation Agents 2026, Refonte Site Web, Audit AML), 20 tâches
+
+#### M.7 — Tests complets (tous modules)
+Tests effectués en session authentifiée (admin@chronosphere.local) :
+
+| Module | Résultat |
+|--------|----------|
+| GET toutes les pages (13 routes) | ✅ 200 |
+| Congé create / approve / reject | ✅ 201 / 200 / 200 |
+| Réservation booking create / approve / cancel | ✅ 201 / 200 / 200 |
+| Département create | ✅ 201 |
+| Shift update status | ✅ 200 |
+| Séance timetable create | ✅ 201 |
+| Auto-génération séances (semestre) | ✅ 200 (16 créées, 6 conflits salle ignorés) |
+| Séance delete | ✅ 200 |
+| Tâche projet create / update | ✅ 201 / 200 |
+| Export Excel RH | ✅ 200 (24 Ko XLSX) |
+| API REST (login / employees / departments / logout) | ✅ 200 |
+
+**Données de test chargées** : 157 employés, 10 départements, 22 postes, ~8 348 shifts, 50 congés, 128 séances, 28 réservations, 20 tâches.
+
+---
 
 ### Phase 1 — Pré-vérifications
 - PHP 8.3.14, Composer 2.9.7, Node v24.16.0, npm 11.13.0, MySQL 9.1.0, Git 2.53.0
