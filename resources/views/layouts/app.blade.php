@@ -335,16 +335,29 @@ function notifBell() {
         notifications: [],
         load() {
             fetch('{{ route('notifications.index') }}', {
+                credentials: 'same-origin',
                 headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
             })
-            .then(r => r.json())
-            .then(d => { this.notifications = d.notifications; this.unread = d.unread_count; });
+            .then(r => {
+                // Session expirée → r.redirected est vrai ou le Content-Type est HTML
+                if (!r.ok || r.redirected || !r.headers.get('content-type')?.includes('json')) {
+                    return null;
+                }
+                return r.json();
+            })
+            .then(d => {
+                if (!d) return;
+                this.notifications = d.notifications ?? [];
+                this.unread = d.unread_count ?? 0;
+            })
+            .catch(() => {});
         },
         toggle() {
             this.open = !this.open;
             if (this.open) this.load();
         },
         async navigate(n) {
+            if (!n || !n.url) return;
             // Marquer comme lu d'abord, puis naviguer
             if (!n.read) {
                 n.read = true;
@@ -352,6 +365,7 @@ function notifBell() {
                 try {
                     await fetch('{{ route('notifications.read') }}', {
                         method: 'POST',
+                        credentials: 'same-origin',
                         headers: {
                             'Content-Type': 'application/json',
                             'Accept': 'application/json',
@@ -362,7 +376,13 @@ function notifBell() {
                 } catch (_) {}
             }
             this.open = false;
-            if (n.url) window.location.href = n.url;
+            // Utiliser le chemin relatif pour éviter tout problème avec l'URL absolue
+            try {
+                const path = new URL(n.url).pathname;
+                window.location.href = path;
+            } catch (_) {
+                window.location.href = n.url;
+            }
         },
         markOne(id) {
             const n = this.notifications.find(x => x.id === id);
@@ -373,8 +393,10 @@ function notifBell() {
             this.unread = 0;
             fetch('{{ route('notifications.read') }}', {
                 method: 'POST',
+                credentials: 'same-origin',
                 headers: {
                     'Content-Type': 'application/json',
+                    'Accept': 'application/json',
                     'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content,
                 },
                 body: JSON.stringify({}),
