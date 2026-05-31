@@ -51,9 +51,10 @@ class RoleAssignmentSeeder extends Seeder
                 $email = strtolower(str_replace(['-', ' '], ['', '.'], $s['code'])) . '@univ.local';
 
                 $user = User::firstOrCreate(['email' => $email], [
-                    'name'     => $s['name'],
-                    'email'    => $email,
-                    'password' => $password,
+                    'name'               => $s['name'],
+                    'email'              => $email,
+                    'password'           => $password,
+                    'email_verified_at'  => now(),
                 ]);
                 $user->syncRoles(['uni_student']);
 
