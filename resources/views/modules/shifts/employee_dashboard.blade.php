@@ -176,37 +176,37 @@
         </div>
     </div>
     @endif {{-- fin @else ($employee existe) --}}
-</x-app-layout>
 
-@push('scripts')
-<script>
-function leaveForm() {
-    return {
-        showForm: false,
-        loading: false,
-        error: '',
-        success: false,
-        form: { type: 'conge_paye', start_date: '', end_date: '', reason: '', employee_id: {{ $employee?->id ?? 'null' }} },
-        async submit() {
-            this.error = ''; this.success = false; this.loading = true;
-            try {
-                const res = await fetch('{{ route('shifts.leaves.store') }}', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content, 'Accept': 'application/json' },
-                    body: JSON.stringify(this.form),
-                });
-                if (!res.ok) {
-                    const d = await res.json();
-                    this.error = Object.values(d.errors || {}).flat().join(' ') || 'Erreur.';
-                } else {
-                    this.success = true;
-                    this.form = { type: 'conge_paye', start_date: '', end_date: '', reason: '' };
-                    setTimeout(() => { this.showForm = false; location.reload(); }, 1500);
-                }
-            } catch { this.error = 'Erreur réseau.'; }
-            this.loading = false;
-        }
-    };
-}
-</script>
-@endpush
+    @push('scripts')
+    <script>
+    function leaveForm() {
+        return {
+            showForm: false,
+            loading: false,
+            error: '',
+            success: false,
+            form: { type: 'conge_paye', start_date: '', end_date: '', reason: '', employee_id: {{ $employee?->id ?? 'null' }} },
+            async submit() {
+                this.error = ''; this.success = false; this.loading = true;
+                try {
+                    const res = await fetch('{{ route('shifts.leaves.store') }}', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content, 'Accept': 'application/json' },
+                        body: JSON.stringify(this.form),
+                    });
+                    if (!res.ok) {
+                        const d = await res.json();
+                        this.error = Object.values(d.errors || {}).flat().join(' ') || 'Erreur.';
+                    } else {
+                        this.success = true;
+                        this.form = { type: 'conge_paye', start_date: '', end_date: '', reason: '', employee_id: {{ $employee?->id ?? 'null' }} };
+                        setTimeout(() => { this.showForm = false; location.reload(); }, 1500);
+                    }
+                } catch { this.error = 'Erreur réseau.'; }
+                this.loading = false;
+            }
+        };
+    }
+    </script>
+    @endpush
+</x-app-layout>
