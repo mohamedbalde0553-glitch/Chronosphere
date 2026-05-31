@@ -14,7 +14,7 @@ class DepartmentController extends Controller
     public function index(): View
     {
         $departments = Department::with(['manager.user', 'parent'])->orderBy('name')->paginate(20);
-        $employees   = Employee::with('user')->active()->get();
+        $employees   = Employee::active()->select('id', 'user_id')->with(['user:id,name'])->orderBy('id')->get();
         $allDepts    = Department::orderBy('name')->get(['id', 'name']);
 
         return view('modules.shifts.departments.index', compact('departments', 'employees', 'allDepts'));

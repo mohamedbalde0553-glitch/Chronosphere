@@ -13,9 +13,10 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
-            'active.context'  => \App\Http\Middleware\SetActiveContext::class,
-            'module.access'   => \App\Http\Middleware\EnsureModuleAccess::class,
-            'user.timezone'   => \App\Http\Middleware\SetUserTimezone::class,
+            'active.context'         => \App\Http\Middleware\SetActiveContext::class,
+            'module.access'          => \App\Http\Middleware\EnsureModuleAccess::class,
+            'user.timezone'          => \App\Http\Middleware\SetUserTimezone::class,
+            'shift.manage.access'    => \App\Http\Middleware\EnsureShiftManagementAccess::class,
         ]);
 
         $middleware->web(append: [

@@ -19,10 +19,18 @@ class EmployeeApiController extends Controller
         $this->authorize('viewAny', Employee::class);
 
         $query = Employee::with(['user', 'department', 'position']);
+        $user  = $request->user();
 
         // hr_employee ne voit que sa propre fiche
-        if ($request->user()->hasRole('hr_employee')) {
-            $query->where('user_id', $request->user()->id);
+        if ($user->hasRole('hr_employee')) {
+            $query->where('user_id', $user->id);
+        } elseif ($user->hasRole('responsable')) {
+            // responsable : uniquement les employés de son département
+            $empId  = \App\Modules\Shifts\Models\Employee::where('user_id', $user->id)->value('id');
+            $deptId = $empId
+                ? \App\Modules\Shifts\Models\Department::where('manager_id', $empId)->value('id')
+                : null;
+            $query->where('department_id', $deptId ?? 0);
         } else {
             if ($request->filled('department_id')) {
                 $query->where('department_id', $request->department_id);

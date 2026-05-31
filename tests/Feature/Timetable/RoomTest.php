@@ -6,10 +6,11 @@ use App\Models\User;
 use App\Modules\Timetable\Models\Room;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
+use Tests\Traits\SeedsRolePermissions;
 
 class RoomTest extends TestCase
 {
-    use RefreshDatabase;
+    use RefreshDatabase, SeedsRolePermissions;
 
     private User $user;
 
@@ -17,6 +18,10 @@ class RoomTest extends TestCase
     {
         parent::setUp();
         $this->user = User::factory()->create();
+        $this->seedRole('uni_admin', [
+            'timetable.view', 'timetable.create', 'timetable.edit',
+            'timetable.delete', 'timetable.manage_rooms', 'timetable.manage_teachers',
+        ], $this->user);
     }
 
     public function test_guest_is_redirected_from_rooms(): void

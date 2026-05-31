@@ -31,6 +31,10 @@ class RoleSeeder extends Seeder
                 'shifts.view', 'shifts.create', 'shifts.edit', 'shifts.delete',
                 'shifts.validate_leave', 'shifts.manage_employees', 'shifts.export',
             ],
+            'responsable' => [
+                'shifts.view', 'shifts.create', 'shifts.edit',
+                'shifts.validate_leave', 'shifts.manage_department',
+            ],
             'hr_employee' => [
                 'shifts.view',
             ],

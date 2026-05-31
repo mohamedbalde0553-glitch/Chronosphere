@@ -19,16 +19,34 @@ class EmployeeController extends Controller
 
     public function index(): View
     {
-        $employees   = Employee::with(['user', 'department', 'position'])->orderBy('id')->paginate(60);
-        $departments = Department::orderBy('name')->get();
+        $deptScope = $this->getManagedDepartmentId();
+
+        $query = Employee::with(['user', 'department', 'position'])->orderBy('id');
+        if ($deptScope !== null) {
+            $query->where('department_id', $deptScope);
+        }
+        $employees = $query->paginate(20);
+
+        $departments = $deptScope !== null
+            ? Department::where('id', $deptScope)->get()
+            : Department::orderBy('name')->get();
+
         $positions   = Position::orderBy('title')->get();
-        $users       = User::doesntHave('employee')->orderBy('name')->get(['id', 'name', 'email']);
+        $users       = User::doesntHave('employee')
+            ->orderBy('name')
+            ->limit(200)
+            ->get(['id', 'name', 'email']);
 
         return view('modules.shifts.employees.index', compact('employees', 'departments', 'positions', 'users'));
     }
 
     public function show(Employee $employee): View
     {
+        $deptScope = $this->getManagedDepartmentId();
+        if ($deptScope !== null && $employee->department_id !== $deptScope) {
+            abort(403, 'Accès limité à votre département.');
+        }
+
         $employee->load(['user', 'department', 'position', 'skills']);
 
         $leaves = $employee->leaveRequests()
@@ -70,6 +88,11 @@ class EmployeeController extends Controller
             'photo_url'            => 'nullable|url',
         ]);
 
+        $deptScope = $this->getManagedDepartmentId();
+        if ($deptScope !== null && (int) $data['department_id'] !== $deptScope) {
+            abort(403, 'Vous ne pouvez créer des employés que dans votre département.');
+        }
+
         $data['status'] = 'active';
         $employee = Employee::create($data);
         $employee->load(['user', 'department', 'position']);
@@ -79,6 +102,11 @@ class EmployeeController extends Controller
 
     public function update(Request $request, Employee $employee): JsonResponse
     {
+        $deptScope = $this->getManagedDepartmentId();
+        if ($deptScope !== null && $employee->department_id !== $deptScope) {
+            abort(403, 'Accès limité à votre département.');
+        }
+
         $data = $request->validate([
             'department_id'        => 'required|exists:hr_departments,id',
             'position_id'          => 'required|exists:hr_positions,id',
@@ -97,8 +125,33 @@ class EmployeeController extends Controller
 
     public function destroy(Employee $employee): JsonResponse
     {
+        // Seul hr_manager peut supprimer un employé
+        if (!auth()->user()->can('shifts.manage_employees')) {
+            abort(403, 'Suppression réservée au responsable RH.');
+        }
+
         $employee->delete();
         return response()->json(['ok' => true]);
+    }
+
+    /**
+     * Retourne l'ID du département géré par l'utilisateur courant (rôle responsable).
+     * Retourne null si aucune restriction de département (hr_manager / super_admin).
+     * Retourne 0 si le responsable n'a pas de département assigné.
+     */
+    private function getManagedDepartmentId(): ?int
+    {
+        $user = auth()->user();
+        if ($user->hasAnyRole(['hr_manager', 'super_admin'])) {
+            return null;
+        }
+
+        $empId = Employee::where('user_id', $user->id)->value('id');
+        if (!$empId) {
+            return 0;
+        }
+
+        return Department::where('manager_id', $empId)->value('id') ?? 0;
     }
 
     private function findScheduleForEmployee(Employee $employee, string $date): ?WorkSchedule

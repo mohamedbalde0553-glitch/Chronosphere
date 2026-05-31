@@ -8,10 +8,11 @@ use App\Modules\Booking\Models\Resource;
 use App\Modules\Booking\Models\ResourceCategory;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
+use Tests\Traits\SeedsRolePermissions;
 
 class ReservationTest extends TestCase
 {
-    use RefreshDatabase;
+    use RefreshDatabase, SeedsRolePermissions;
 
     private User $user;
     private Resource $resource;
@@ -22,6 +23,10 @@ class ReservationTest extends TestCase
         parent::setUp();
 
         $this->user = User::factory()->create();
+        $this->seedRole('book_manager', [
+            'booking.view', 'booking.create', 'booking.edit',
+            'booking.delete', 'booking.approve', 'booking.manage_resources',
+        ], $this->user);
 
         $category = ResourceCategory::create(['name' => 'Salle', 'color' => '#4F46E5']);
 

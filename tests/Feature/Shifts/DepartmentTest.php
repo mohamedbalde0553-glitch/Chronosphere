@@ -5,6 +5,8 @@ namespace Tests\Feature\Shifts;
 use App\Models\User;
 use App\Modules\Shifts\Models\Department;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
 class DepartmentTest extends TestCase
@@ -16,7 +18,15 @@ class DepartmentTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+
+        $view   = Permission::firstOrCreate(['name' => 'shifts.view']);
+        $manage = Permission::firstOrCreate(['name' => 'shifts.manage_employees']);
+
+        $role = Role::firstOrCreate(['name' => 'hr_manager']);
+        $role->syncPermissions([$view, $manage]);
+
         $this->user = User::factory()->create();
+        $this->user->assignRole('hr_manager');
     }
 
     public function test_guest_is_redirected_from_departments(): void
@@ -101,6 +111,6 @@ class DepartmentTest extends TestCase
             ->assertOk()
             ->assertJson(['ok' => true]);
 
-        $this->assertDatabaseMissing('hr_departments', ['id' => $dept->id]);
+        $this->assertSoftDeleted('hr_departments', ['id' => $dept->id]);
     }
 }

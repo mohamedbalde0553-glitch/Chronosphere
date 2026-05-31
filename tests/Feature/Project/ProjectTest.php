@@ -6,10 +6,11 @@ use App\Models\User;
 use App\Modules\Project\Models\Project;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
+use Tests\Traits\SeedsRolePermissions;
 
 class ProjectTest extends TestCase
 {
-    use RefreshDatabase;
+    use RefreshDatabase, SeedsRolePermissions;
 
     private User $user;
 
@@ -17,6 +18,10 @@ class ProjectTest extends TestCase
     {
         parent::setUp();
         $this->user = User::factory()->create();
+        $this->seedRole('proj_manager', [
+            'project.view', 'project.create', 'project.edit',
+            'project.delete', 'project.manage_team', 'project.manage_all',
+        ], $this->user);
     }
 
     public function test_guest_is_redirected_from_project_index(): void

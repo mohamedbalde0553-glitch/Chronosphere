@@ -7,10 +7,11 @@ use App\Modules\Project\Models\Project;
 use App\Modules\Project\Models\Task;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
+use Tests\Traits\SeedsRolePermissions;
 
 class TaskTest extends TestCase
 {
-    use RefreshDatabase;
+    use RefreshDatabase, SeedsRolePermissions;
 
     private User $user;
     private Project $project;
@@ -19,6 +20,10 @@ class TaskTest extends TestCase
     {
         parent::setUp();
         $this->user    = User::factory()->create();
+        $this->seedRole('proj_manager', [
+            'project.view', 'project.create', 'project.edit',
+            'project.delete', 'project.manage_team', 'project.manage_all',
+        ], $this->user);
         $this->project = Project::create([
             'owner_id' => $this->user->id,
             'name'     => 'Projet Test',

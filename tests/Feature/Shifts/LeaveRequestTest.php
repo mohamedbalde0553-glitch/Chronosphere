@@ -9,6 +9,8 @@ use App\Modules\Shifts\Models\LeaveRequest;
 use App\Modules\Shifts\Models\Position;
 use App\Modules\Shifts\Models\Shift;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
 class LeaveRequestTest extends TestCase
@@ -22,7 +24,15 @@ class LeaveRequestTest extends TestCase
     {
         parent::setUp();
 
+        $view     = Permission::firstOrCreate(['name' => 'shifts.view']);
+        $validate = Permission::firstOrCreate(['name' => 'shifts.validate_leave']);
+        $manage   = Permission::firstOrCreate(['name' => 'shifts.manage_employees']);
+
+        $role = Role::firstOrCreate(['name' => 'hr_manager']);
+        $role->syncPermissions([$view, $validate, $manage]);
+
         $this->user = User::factory()->create();
+        $this->user->assignRole('hr_manager');
 
         $dept     = Department::create(['name' => 'Informatique', 'code' => 'IT']);
         $position = Position::create(['title' => 'Développeur', 'base_hourly_rate' => 25.00]);
@@ -137,28 +147,25 @@ class LeaveRequestTest extends TestCase
             'status'      => 'pending',
         ]);
 
-        // Shift qui chevauche le congé
         $shift = Shift::create([
-            'employee_id'   => $this->employee->id,
-            'start_at'      => '2026-08-12 08:00:00',
-            'end_at'        => '2026-08-12 16:00:00',
-            'status'        => 'planned',
-            'worked_minutes'=> 0,
+            'employee_id'    => $this->employee->id,
+            'start_at'       => '2026-08-12 08:00:00',
+            'end_at'         => '2026-08-12 16:00:00',
+            'status'         => 'planned',
+            'worked_minutes' => 0,
         ]);
 
-        // Shift hors congé (ne doit pas être annulé)
         $shiftOutside = Shift::create([
-            'employee_id'   => $this->employee->id,
-            'start_at'      => '2026-08-20 08:00:00',
-            'end_at'        => '2026-08-20 16:00:00',
-            'status'        => 'planned',
-            'worked_minutes'=> 0,
+            'employee_id'    => $this->employee->id,
+            'start_at'       => '2026-08-20 08:00:00',
+            'end_at'         => '2026-08-20 16:00:00',
+            'status'         => 'planned',
+            'worked_minutes' => 0,
         ]);
 
-        $response = $this->actingAs($this->user)
-            ->postJson("/shifts/leaves/{$leave->id}/approve");
-
-        $response->assertOk()
+        $this->actingAs($this->user)
+            ->postJson("/shifts/leaves/{$leave->id}/approve")
+            ->assertOk()
             ->assertJsonFragment(['shifts_cancelled' => 1]);
 
         $this->assertDatabaseHas('hr_shifts', ['id' => $shift->id, 'status' => 'cancelled']);

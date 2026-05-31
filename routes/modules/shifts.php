@@ -27,8 +27,8 @@ Route::middleware('can:shifts.validate_leave')->group(function () {
     Route::post('/leaves/{leave}/reject', [LeaveRequestController::class, 'reject'])->name('leaves.reject');
 });
 
-// Gestion (hr_manager et +)
-Route::middleware('can:shifts.manage_employees')->group(function () {
+// Gestion du département (responsable) + gestion globale (hr_manager)
+Route::middleware('shift.manage.access')->group(function () {
     // Shifts CRUD
     Route::post('/shifts', [ShiftController::class, 'store'])->name('shifts.store');
     Route::put('/shifts/{shift}', [ShiftController::class, 'update'])->name('shifts.update');
@@ -40,7 +40,10 @@ Route::middleware('can:shifts.manage_employees')->group(function () {
     Route::post('/employees', [EmployeeController::class, 'store'])->name('employees.store');
     Route::put('/employees/{employee}', [EmployeeController::class, 'update'])->name('employees.update');
     Route::delete('/employees/{employee}', [EmployeeController::class, 'destroy'])->name('employees.destroy');
+});
 
+// Gestion globale — hr_manager uniquement
+Route::middleware('can:shifts.manage_employees')->group(function () {
     // Départements
     Route::get('/departments', [DepartmentController::class, 'index'])->name('departments.index');
     Route::post('/departments', [DepartmentController::class, 'store'])->name('departments.store');

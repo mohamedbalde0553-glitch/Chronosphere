@@ -28,6 +28,7 @@ class PermissionSeeder extends Seeder
             'shifts.delete',
             'shifts.validate_leave',
             'shifts.manage_employees',
+            'shifts.manage_department',
             'shifts.export',
 
             // Module Agenda
