@@ -19,6 +19,7 @@ public class ShiftFragment extends Fragment {
 
     private FragmentShiftBinding binding;
     private EmployeeViewModel    viewModel;
+    private int                  employeeId;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater i, ViewGroup c, Bundle s) {
@@ -31,6 +32,8 @@ public class ShiftFragment extends Fragment {
         super.onViewCreated(view, saved);
 
         TokenManager tm = new TokenManager(requireContext());
+        employeeId = tm.getEmployeeId();
+
         viewModel = new ViewModelProvider(this).get(EmployeeViewModel.class);
         viewModel.init(requireContext());
 
@@ -45,17 +48,18 @@ public class ShiftFragment extends Fragment {
             }
         });
 
-        viewModel.isLoading.observe(getViewLifecycleOwner(), loading ->
-                binding.progressBar.setVisibility(loading ? View.VISIBLE : View.GONE));
-
-        binding.swipeRefresh.setOnRefreshListener(() -> {
-            viewModel.loadShifts(tm.getEmployeeId());
-            binding.swipeRefresh.setRefreshing(false);
+        // Masquer le spinner de refresh quand le chargement est terminé
+        viewModel.isLoading.observe(getViewLifecycleOwner(), loading -> {
+            binding.progressBar.setVisibility(loading ? View.VISIBLE : View.GONE);
+            if (!loading) binding.swipeRefresh.setRefreshing(false);
         });
 
-        int empId = tm.getEmployeeId();
-        if (empId != -1) {
-            viewModel.loadShifts(empId);
+        binding.swipeRefresh.setOnRefreshListener(() -> {
+            if (employeeId != -1) viewModel.loadShifts(employeeId);
+        });
+
+        if (employeeId != -1) {
+            viewModel.loadShifts(employeeId);
         }
     }
 }

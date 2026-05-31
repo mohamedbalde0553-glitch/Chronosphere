@@ -2,8 +2,10 @@ package com.chronosphere.mobile.api;
 
 import com.chronosphere.mobile.models.Employee;
 import com.chronosphere.mobile.models.EmployeeListResponse;
+import com.chronosphere.mobile.models.EmployeeResponse;
 import com.chronosphere.mobile.models.LeaveRequest;
 import com.chronosphere.mobile.models.LeaveRequestListResponse;
+import com.chronosphere.mobile.models.LeaveRequestResponse;
 import com.chronosphere.mobile.models.LoginRequest;
 import com.chronosphere.mobile.models.LoginResponse;
 import com.chronosphere.mobile.models.MessageResponse;
@@ -41,15 +43,15 @@ public interface ApiService {
     @GET("employees/{id}")
     Call<EmployeeResponse> getEmployee(@Path("id") int id);
 
-    // Shifts d'un employé
+    // Shifts d'un employé — paramètres corrigés : from / to
     @GET("employees/{id}/shifts")
     Call<ShiftListResponse> getEmployeeShifts(
             @Path("id") int employeeId,
-            @Query("start") String start,
-            @Query("end") String end
+            @Query("from") String from,
+            @Query("to") String to
     );
 
-    // Congés d'un employé
+    // Congés d'un employé (propre liste)
     @GET("employees/{id}/leave-requests")
     Call<LeaveRequestListResponse> getLeaveRequests(@Path("id") int employeeId);
 
@@ -58,6 +60,20 @@ public interface ApiService {
     Call<LeaveRequestResponse> createLeaveRequest(
             @Path("id") int employeeId,
             @Body Map<String, Object> body
+    );
+
+    // Annuler une demande (employé)
+    @PUT("employees/{employeeId}/leave-requests/{leaveId}/cancel")
+    Call<LeaveRequestResponse> cancelLeave(
+            @Path("employeeId") int employeeId,
+            @Path("leaveId") int leaveId
+    );
+
+    // Liste globale des congés (manager / super_admin)
+    @GET("leaves")
+    Call<LeaveRequestListResponse> getAllLeaves(
+            @Query("status") String status,
+            @Query("per_page") int perPage
     );
 
     // Approuver / Refuser (manager)

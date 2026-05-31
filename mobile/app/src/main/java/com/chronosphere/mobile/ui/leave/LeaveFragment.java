@@ -36,7 +36,8 @@ public class LeaveFragment extends Fragment {
         viewModel    = new ViewModelProvider(this).get(EmployeeViewModel.class);
         viewModel.init(requireContext());
 
-        boolean isManager = tokenManager.isManager();
+        boolean isManager  = tokenManager.isManager();
+        int     employeeId = tokenManager.getEmployeeId();
 
         LeaveAdapter adapter = new LeaveAdapter();
         binding.recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
@@ -44,15 +45,18 @@ public class LeaveFragment extends Fragment {
 
         viewModel.leaves.observe(getViewLifecycleOwner(), list -> {
             if (list != null) {
-                adapter.setData(requireContext(), list, isManager, new LeaveAdapter.ActionListener() {
-                    @Override
-                    public void onApprove(int leaveId) { viewModel.approveLeave(leaveId); }
-                    @Override
-                    public void onReject(int leaveId)  { viewModel.rejectLeave(leaveId, "Refusé par le manager"); }
-                });
+                adapter.setData(requireContext(), list, isManager, employeeId,
+                        new LeaveAdapter.ActionListener() {
+                            @Override public void onApprove(int leaveId) { viewModel.approveLeave(leaveId); }
+                            @Override public void onReject(int leaveId)  { viewModel.rejectLeave(leaveId, "Refusé par le manager"); }
+                            @Override public void onCancel(int leaveId)  { viewModel.cancelLeave(employeeId, leaveId); }
+                        });
                 binding.tvEmpty.setVisibility(list.isEmpty() ? View.VISIBLE : View.GONE);
             }
         });
+
+        viewModel.isLoading.observe(getViewLifecycleOwner(), loading ->
+                binding.progressBar.setVisibility(loading ? View.VISIBLE : View.GONE));
 
         viewModel.actionResult.observe(getViewLifecycleOwner(), msg -> {
             if (msg != null && !msg.isEmpty()) {
@@ -60,20 +64,33 @@ public class LeaveFragment extends Fragment {
             }
         });
 
-        // Bouton nouvelle demande (employé seulement)
+        // FAB visible uniquement pour les employés
         if (isManager) {
             binding.fabNewLeave.setVisibility(View.GONE);
         } else {
             binding.fabNewLeave.setOnClickListener(v ->
-                    new NewLeaveDialogFragment(tokenManager.getEmployeeId(), viewModel)
+                    new NewLeaveDialogFragment(employeeId, viewModel)
                             .show(getParentFragmentManager(), "new_leave"));
         }
 
         binding.swipeRefresh.setOnRefreshListener(() -> {
-            viewModel.loadLeaves(tokenManager.getEmployeeId());
-            binding.swipeRefresh.setRefreshing(false);
+            if (isManager) {
+                viewModel.loadManagerLeaves();
+            } else {
+                viewModel.loadLeaves(employeeId);
+            }
         });
 
-        viewModel.loadLeaves(tokenManager.getEmployeeId());
+        // Observe isLoading pour masquer le swipeRefresh correctement
+        viewModel.isLoading.observe(getViewLifecycleOwner(), loading -> {
+            if (!loading) binding.swipeRefresh.setRefreshing(false);
+        });
+
+        // Chargement initial
+        if (isManager) {
+            viewModel.loadManagerLeaves();
+        } else {
+            viewModel.loadLeaves(employeeId);
+        }
     }
 }

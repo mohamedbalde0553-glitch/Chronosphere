@@ -30,6 +30,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('employees/{employee}/schedule',        [WorkScheduleApiController::class,  'employeeSchedule']);
     Route::post('employees/{employee}/schedule-override', [WorkScheduleApiController::class, 'storeOverride']);
 
+    // Liste globale des congés (manager / super_admin)
+    Route::get('leaves', [EmployeeApiController::class, 'allLeaveRequests']);
+
+    // Annulation par l'employé
+    Route::put('employees/{employee}/leave-requests/{leaveRequest}/cancel',
+        [EmployeeApiController::class, 'cancelLeaveRequest']);
+
     // Actions sur les congés (manager)
     Route::put('leave-requests/{leaveRequest}/approve', [EmployeeApiController::class, 'approveLeaveRequest']);
     Route::put('leave-requests/{leaveRequest}/reject',  [EmployeeApiController::class, 'rejectLeaveRequest']);

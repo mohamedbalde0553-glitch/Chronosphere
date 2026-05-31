@@ -25,6 +25,11 @@ class LeaveRequestResource extends JsonResource
                 'id'   => $this->validator->id,
                 'name' => $this->validator->name,
             ]),
+            'employee'         => $this->whenLoaded('employee', fn() => [
+                'id'   => $this->employee->id,
+                'code' => $this->employee->employee_code,
+                'name' => $this->employee->user?->name,
+            ]),
         ];
     }
 }

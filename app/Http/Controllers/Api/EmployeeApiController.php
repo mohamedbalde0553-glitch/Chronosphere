@@ -161,11 +161,63 @@ class EmployeeApiController extends Controller
         ]);
 
         $leave = $employee->leaveRequests()->create([
-            ...$data,
-            'status' => 'pending',
+            'type'       => $data['leave_type'],
+            'start_date' => $data['start_date'],
+            'end_date'   => $data['end_date'],
+            'reason'     => $data['reason'] ?? null,
+            'status'     => 'pending',
         ]);
 
         return (new LeaveRequestResource($leave))->response()->setStatusCode(201);
+    }
+
+    public function allLeaveRequests(Request $request): AnonymousResourceCollection
+    {
+        $user  = $request->user();
+        $query = LeaveRequest::with(['employee.user', 'validator'])->orderByDesc('start_date');
+
+        if ($user->hasRole('super_admin')) {
+            // voit tout
+        } elseif ($user->hasRole('hr_manager') || $user->hasRole('responsable')) {
+            $empId  = Employee::where('user_id', $user->id)->value('id');
+            $deptId = $empId
+                ? \App\Modules\Shifts\Models\Department::where('manager_id', $empId)->value('id')
+                : null;
+            $query->whereHas('employee', fn($q) => $q->where('department_id', $deptId ?? 0));
+        } else {
+            $empId = Employee::where('user_id', $user->id)->value('id');
+            $query->where('employee_id', $empId ?? 0);
+        }
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        return LeaveRequestResource::collection(
+            $query->paginate($request->integer('per_page', 20))
+        );
+    }
+
+    public function cancelLeaveRequest(Request $request, Employee $employee, LeaveRequest $leaveRequest): JsonResponse
+    {
+        if ($leaveRequest->employee_id !== $employee->id) {
+            abort(403);
+        }
+
+        if ($leaveRequest->status !== 'pending') {
+            return response()->json(['message' => 'Seules les demandes en attente peuvent être annulées.'], 422);
+        }
+
+        if ($request->user()->hasRole('hr_employee')) {
+            $myEmployee = Employee::where('user_id', $request->user()->id)->firstOrFail();
+            if ($myEmployee->id !== $employee->id) {
+                abort(403);
+            }
+        }
+
+        $leaveRequest->update(['status' => 'cancelled']);
+
+        return response()->json(['message' => 'Demande annulée.', 'data' => new LeaveRequestResource($leaveRequest)]);
     }
 
     public function approveLeaveRequest(Request $request, LeaveRequest $leaveRequest): JsonResponse

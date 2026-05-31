@@ -36,7 +36,8 @@ public class ShiftAdapter extends RecyclerView.Adapter<ShiftAdapter.ViewHolder> 
     public void onBindViewHolder(@NonNull ViewHolder h, int pos) {
         Shift s = items.get(pos);
         h.dates.setText(formatDate(s.startAt) + "  →  " + formatDate(s.endAt));
-        h.duration.setText(s.durationMinutes / 60 + "h" + (s.durationMinutes % 60 != 0 ? s.durationMinutes % 60 : ""));
+        int mins = s.workedMinutes;
+        h.duration.setText(mins / 60 + "h" + (mins % 60 != 0 ? String.valueOf(mins % 60) : ""));
         h.status.setText(translateStatus(s.status));
         h.status.setTextColor(statusColor(s.status));
     }

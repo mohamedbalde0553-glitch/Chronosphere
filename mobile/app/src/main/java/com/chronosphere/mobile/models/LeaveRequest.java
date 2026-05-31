@@ -5,7 +5,10 @@ import com.google.gson.annotations.SerializedName;
 public class LeaveRequest {
     public int    id;
 
-    @SerializedName("leave_type")
+    @SerializedName("employee_id")
+    public int employeeId;
+
+    @SerializedName("type")
     public String leaveType;
 
     @SerializedName("start_date")
@@ -19,4 +22,12 @@ public class LeaveRequest {
 
     @SerializedName("rejection_reason")
     public String rejectionReason;
+
+    public EmployeeInfo employee;
+
+    public static class EmployeeInfo {
+        public int    id;
+        public String name;
+        public String code;
+    }
 }

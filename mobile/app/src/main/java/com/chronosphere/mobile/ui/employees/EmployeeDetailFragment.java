@@ -50,11 +50,11 @@ public class EmployeeDetailFragment extends Fragment {
 
         viewModel.selectedEmployee.observe(getViewLifecycleOwner(), emp -> {
             if (emp == null) return;
-            binding.tvName.setText(emp.name);
+            binding.tvName.setText(emp.getDisplayName());
             binding.tvCode.setText(emp.employeeCode);
             binding.tvDept.setText(emp.department != null ? emp.department.name : "");
             binding.tvPos.setText(emp.position != null ? emp.position.title : "");
-            binding.tvPhone.setText(emp.phone != null ? emp.phone : "—");
+            binding.tvPhone.setText(!emp.getDisplayPhone().isEmpty() ? emp.getDisplayPhone() : "—");
             binding.tvStatus.setText(emp.status);
 
             if (emp.photoUrl != null && !emp.photoUrl.isEmpty()) {
@@ -67,7 +67,7 @@ public class EmployeeDetailFragment extends Fragment {
         });
 
         viewModel.leaves.observe(getViewLifecycleOwner(), list -> {
-            if (list != null) leaveAdapter.setData(requireContext(), list, false, null);
+            if (list != null) leaveAdapter.setData(requireContext(), list, false, -1, null);
         });
 
         if (employeeId != -1) {

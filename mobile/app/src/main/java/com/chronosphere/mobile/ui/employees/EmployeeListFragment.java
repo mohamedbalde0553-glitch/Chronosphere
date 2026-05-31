@@ -44,7 +44,7 @@ public class EmployeeListFragment extends Fragment {
         adapter.setListener(employee -> {
             Bundle args = new Bundle();
             args.putInt("employee_id", employee.id);
-            args.putString("employee_name", employee.name);
+            args.putString("employee_name", employee.getDisplayName());
             Navigation.findNavController(view).navigate(R.id.action_list_to_detail, args);
         });
 

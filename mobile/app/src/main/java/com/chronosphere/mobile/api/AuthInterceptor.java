@@ -1,5 +1,6 @@
 package com.chronosphere.mobile.api;
 
+import com.chronosphere.mobile.utils.AuthEventBus;
 import com.chronosphere.mobile.utils.TokenManager;
 
 import java.io.IOException;
@@ -19,17 +20,21 @@ public class AuthInterceptor implements Interceptor {
     @Override
     public Response intercept(Chain chain) throws IOException {
         String token = tokenManager.getToken();
-        Request original = chain.request();
 
-        if (token == null) {
-            return chain.proceed(original);
+        Request.Builder builder = chain.request().newBuilder()
+                .header("Accept", "application/json");
+
+        if (token != null) {
+            builder.header("Authorization", "Bearer " + token);
         }
 
-        Request request = original.newBuilder()
-                .header("Authorization", "Bearer " + token)
-                .header("Accept", "application/json")
-                .build();
+        Response response = chain.proceed(builder.build());
 
-        return chain.proceed(request);
+        if (response.code() == 401 && token != null) {
+            tokenManager.clear();
+            AuthEventBus.onUnauthorized.postValue(true);
+        }
+
+        return response;
     }
 }

@@ -13,6 +13,7 @@ import com.chronosphere.mobile.models.EmployeeResponse;
 import com.chronosphere.mobile.models.LeaveRequest;
 import com.chronosphere.mobile.models.LeaveRequestListResponse;
 import com.chronosphere.mobile.models.LeaveRequestResponse;
+import com.chronosphere.mobile.models.MessageResponse;
 import com.chronosphere.mobile.models.Shift;
 import com.chronosphere.mobile.models.ShiftListResponse;
 import com.chronosphere.mobile.utils.TokenManager;
@@ -27,14 +28,16 @@ import retrofit2.Response;
 
 public class EmployeeViewModel extends ViewModel {
 
-    public MutableLiveData<List<Employee>>    employees        = new MutableLiveData<>();
-    public MutableLiveData<Employee>          selectedEmployee = new MutableLiveData<>();
-    public MutableLiveData<List<Shift>>       shifts           = new MutableLiveData<>();
-    public MutableLiveData<List<LeaveRequest>> leaves          = new MutableLiveData<>();
-    public MutableLiveData<Boolean>           isLoading        = new MutableLiveData<>(false);
-    public MutableLiveData<String>            actionResult     = new MutableLiveData<>();
+    public MutableLiveData<List<Employee>>     employees        = new MutableLiveData<>();
+    public MutableLiveData<Employee>           selectedEmployee = new MutableLiveData<>();
+    public MutableLiveData<List<Shift>>        shifts           = new MutableLiveData<>();
+    public MutableLiveData<List<LeaveRequest>> leaves           = new MutableLiveData<>();
+    public MutableLiveData<Boolean>            isLoading        = new MutableLiveData<>(false);
+    public MutableLiveData<String>             actionResult     = new MutableLiveData<>();
 
     private ApiService api;
+    private int        lastLeaveEmployeeId = -1;
+    private boolean    lastLoadWasManager  = false;
 
     public void init(Context context) {
         TokenManager tm = new TokenManager(context);
@@ -78,7 +81,11 @@ public class EmployeeViewModel extends ViewModel {
         });
     }
 
+    // Chargement des congés pour un employé
     public void loadLeaves(int employeeId) {
+        if (employeeId == -1) return;
+        lastLeaveEmployeeId = employeeId;
+        lastLoadWasManager  = false;
         isLoading.setValue(true);
         api.getLeaveRequests(employeeId).enqueue(new Callback<LeaveRequestListResponse>() {
             @Override
@@ -89,6 +96,29 @@ public class EmployeeViewModel extends ViewModel {
             @Override
             public void onFailure(Call<LeaveRequestListResponse> c, Throwable t) { isLoading.setValue(false); }
         });
+    }
+
+    // Chargement de tous les congés en attente (manager / super_admin)
+    public void loadManagerLeaves() {
+        lastLoadWasManager = true;
+        isLoading.setValue(true);
+        api.getAllLeaves("pending", 50).enqueue(new Callback<LeaveRequestListResponse>() {
+            @Override
+            public void onResponse(Call<LeaveRequestListResponse> c, Response<LeaveRequestListResponse> r) {
+                isLoading.setValue(false);
+                if (r.isSuccessful() && r.body() != null) leaves.setValue(r.body().data);
+            }
+            @Override
+            public void onFailure(Call<LeaveRequestListResponse> c, Throwable t) { isLoading.setValue(false); }
+        });
+    }
+
+    private void reloadLeaves() {
+        if (lastLoadWasManager) {
+            loadManagerLeaves();
+        } else if (lastLeaveEmployeeId != -1) {
+            loadLeaves(lastLeaveEmployeeId);
+        }
     }
 
     public void createLeaveRequest(int employeeId, Map<String, Object> body) {
@@ -109,11 +139,30 @@ public class EmployeeViewModel extends ViewModel {
         });
     }
 
+    public void cancelLeave(int employeeId, int leaveId) {
+        api.cancelLeave(employeeId, leaveId).enqueue(new Callback<LeaveRequestResponse>() {
+            @Override
+            public void onResponse(Call<LeaveRequestResponse> c, Response<LeaveRequestResponse> r) {
+                if (r.isSuccessful()) {
+                    actionResult.setValue("Demande annulée");
+                    reloadLeaves();
+                } else {
+                    actionResult.setValue("Impossible d'annuler");
+                }
+            }
+            @Override
+            public void onFailure(Call<LeaveRequestResponse> c, Throwable t) {
+                actionResult.setValue("Erreur réseau");
+            }
+        });
+    }
+
     public void approveLeave(int leaveId) {
         api.approveLeave(leaveId).enqueue(new Callback<LeaveRequestResponse>() {
             @Override
             public void onResponse(Call<LeaveRequestResponse> c, Response<LeaveRequestResponse> r) {
                 actionResult.setValue(r.isSuccessful() ? "Congé approuvé" : "Erreur");
+                if (r.isSuccessful()) reloadLeaves();
             }
             @Override
             public void onFailure(Call<LeaveRequestResponse> c, Throwable t) {
@@ -129,6 +178,7 @@ public class EmployeeViewModel extends ViewModel {
             @Override
             public void onResponse(Call<LeaveRequestResponse> c, Response<LeaveRequestResponse> r) {
                 actionResult.setValue(r.isSuccessful() ? "Congé refusé" : "Erreur");
+                if (r.isSuccessful()) reloadLeaves();
             }
             @Override
             public void onFailure(Call<LeaveRequestResponse> c, Throwable t) {

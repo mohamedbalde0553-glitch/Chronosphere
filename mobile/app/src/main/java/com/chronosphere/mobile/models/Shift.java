@@ -14,6 +14,9 @@ public class Shift {
     public String status;
     public String notes;
 
-    @SerializedName("duration_minutes")
-    public int durationMinutes;
+    @SerializedName("worked_minutes")
+    public int workedMinutes;
+
+    @SerializedName("overtime_minutes")
+    public int overtimeMinutes;
 }
