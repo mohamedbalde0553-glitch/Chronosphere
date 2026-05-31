@@ -73,9 +73,11 @@ Route::middleware('can:shifts.manage_employees')->group(function () {
     Route::delete('/overrides/{override}', [WorkScheduleController::class, 'destroyOverride'])->name('overrides.destroy');
 });
 
-// Exports et rapports (hr_manager)
+// Stats KPI — accessibles à tous les rôles du module (filtrées par dept pour responsable)
+Route::get('/stats', [StatsController::class, 'index'])->name('stats');
+
+// Exports et rapports (hr_manager uniquement)
 Route::middleware('can:shifts.export')->group(function () {
-    Route::get('/stats', [StatsController::class, 'index'])->name('stats');
     Route::get('/export/excel', [StatsController::class, 'exportExcel'])->name('export.excel');
     Route::get('/export/pdf-data', [StatsController::class, 'pdfData'])->name('export.pdf-data');
     Route::get('/rapports', [RapportController::class, 'index'])->name('rapports.index');

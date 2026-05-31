@@ -6,10 +6,17 @@
         {{-- ===== EN-TÊTE ===== --}}
         <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
             <div>
-                <h2 class="text-xl font-bold text-gray-900 dark:text-white">Tableau de bord RH</h2>
+                <h2 class="text-xl font-bold text-gray-900 dark:text-white">
+                    Tableau de bord RH
+                    @if(auth()->user()->hasRole('responsable'))
+                        <span class="ml-2 text-sm font-normal text-emerald-600 dark:text-emerald-400"
+                              x-text="stats?.week?.dept_name ? '— ' + stats.week.dept_name : ''"></span>
+                    @endif
+                </h2>
                 <p class="text-sm text-gray-500 dark:text-gray-400 mt-0.5">Semaine du {{ now()->startOfWeek()->translatedFormat('d F Y') }}</p>
             </div>
             <div class="flex gap-2">
+                @can('shifts.export')
                 <a href="{{ route('shifts.rapports.index') }}"
                    class="flex items-center gap-1.5 px-3 py-2 text-sm text-indigo-700 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/30 border border-indigo-200 dark:border-indigo-800 rounded-lg hover:bg-indigo-100 dark:hover:bg-indigo-900/50 transition-colors font-medium">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -31,6 +38,7 @@
                     </svg>
                     Export PDF
                 </button>
+                @endcan
             </div>
         </div>
 
