@@ -1,0 +1,171 @@
+================================================================================
+  CHRONOSPHERE — COMPTES DE TEST
+  Mot de passe universel : password
+================================================================================
+
+
+────────────────────────────────────────────────────────────────────────────────
+  ADMINISTRATION SYSTÈME
+────────────────────────────────────────────────────────────────────────────────
+
+  Rôle          : super_admin (accès illimité à tous les modules)
+  Email         : admin@chronosphere.local
+  Mot de passe  : password
+
+
+────────────────────────────────────────────────────────────────────────────────
+  MODULE 2 — GESTION RH / EMPLOYÉS
+────────────────────────────────────────────────────────────────────────────────
+
+  ┌─ RESPONSABLE RH (hr_manager) ─────────────────────────────────────────────┐
+  │  Accès complet : tous les employés, shifts, congés, stats, exports         │
+  │                                                                             │
+  │  Email         : hr.manager@test.local                                     │
+  │  Nom           : Marie Dupont                                               │
+  │  Mot de passe  : password                                                   │
+  │                                                                             │
+  │  Autres comptes hr_manager (données microfinance) :                        │
+  │    baye.ueye91@microfinance.mf          (Responsable RH principal)         │
+  │    hadija.a94@microfinance.mf           (Responsable RH adjoint)           │
+  │    ouleymane.iabate97@microfinance.mf   (Responsable RH adjoint)           │
+  └─────────────────────────────────────────────────────────────────────────────┘
+
+  ┌─ RESPONSABLE DE DÉPARTEMENT (responsable) ─────────────────────────────────┐
+  │  Accès limité aux employés et congés de son département uniquement.        │
+  │  Peut créer/modifier des shifts, valider les congés de son équipe.         │
+  │  Pas d'accès aux autres départements, ni aux exports/rapports.             │
+  │                                                                             │
+  │  Email         : resp.credit@chronosphere.local                             │
+  │  Nom           : Amara Diallo                                               │
+  │  Département   : Direction des Crédits                                      │
+  │  Mot de passe  : password                                                   │
+  │                                                                             │
+  │  Email         : resp.compta@chronosphere.local                             │
+  │  Nom           : Kadiatou Balde                                             │
+  │  Département   : Comptabilité & Finance                                     │
+  │  Mot de passe  : password                                                   │
+  │                                                                             │
+  │  Email         : resp.rh@chronosphere.local                                 │
+  │  Nom           : Ousmane Sow                                                │
+  │  Département   : Ressources Humaines                                        │
+  │  Mot de passe  : password                                                   │
+  └─────────────────────────────────────────────────────────────────────────────┘
+
+  ┌─ EMPLOYÉ (hr_employee) ────────────────────────────────────────────────────┐
+  │  Accès personnel uniquement : ses propres shifts et demandes de congé.     │
+  │                                                                             │
+  │  Email         : hr.employee@test.local                                     │
+  │  Nom           : Jean Kone                                                  │
+  │  Mot de passe  : password                                                   │
+  │                                                                             │
+  │  Autres comptes hr_employee (données microfinance, exemples) :             │
+  │    madou.iallo1@microfinance.mf    (Employé MF-0001)                       │
+  │    atou.baye2@microfinance.mf      (Employée MF-0002)                      │
+  │    brahima.ah3@microfinance.mf     (Employé MF-0003)                       │
+  │    → 155 employés au total (même format prenom.nom#@microfinance.mf)       │
+  └─────────────────────────────────────────────────────────────────────────────┘
+
+
+────────────────────────────────────────────────────────────────────────────────
+  MODULE 1 — UNIVERSITAIRE / EMPLOIS DU TEMPS
+────────────────────────────────────────────────────────────────────────────────
+
+  ┌─ ADMINISTRATEUR UNIVERSITAIRE (uni_admin) ────────────────────────────────┐
+  │  Gestion complète : salles, matières, groupes, enseignants, séances        │
+  │                                                                             │
+  │  Email         : uni.admin@test.local                                       │
+  │  Nom           : Admin Uni                                                  │
+  │  Mot de passe  : password                                                   │
+  └─────────────────────────────────────────────────────────────────────────────┘
+
+  ┌─ ENSEIGNANT (uni_teacher) ─────────────────────────────────────────────────┐
+  │  Consultation + saisie de séances                                           │
+  │                                                                             │
+  │  Email         : uni.teacher@test.local   (compte générique)                │
+  │  Email         : demo@chronosphere.local  (multi-rôles)                     │
+  │                                                                             │
+  │  Enseignants de la démo universitaire :                                     │
+  │    prof0@universite.sn    Dr. Mamadou Fall                                 │
+  │    prof1@universite.sn    Pr. Aissatou Diallo                              │
+  │    prof2@universite.sn    Dr. Cheikh Sow                                   │
+  │    prof3@universite.sn    Mme. Fatou Mbaye                                 │
+  │    prof4@universite.sn    M. Ibrahima Ba                                   │
+  │  Mot de passe  : password (tous)                                            │
+  └─────────────────────────────────────────────────────────────────────────────┘
+
+  ┌─ ÉTUDIANT (uni_student) ───────────────────────────────────────────────────┐
+  │  Consultation de l'emploi du temps uniquement                               │
+  │                                                                             │
+  │  Email         : uni.student@test.local      (compte générique)             │
+  │  Email         : 2025l1a001@univ.local       Fatou Diallo (L1-INFO-A)      │
+  │  Email         : 2025l1b001@univ.local       Ousmane Camara (L1-INFO-B)    │
+  │  Email         : 2024l2a001@univ.local       Mamadou Baldé (L2-ECO-A)      │
+  │  Email         : 2023l3a001@univ.local       Thierno Diallo (L3-FIN-A)     │
+  │  Email         : 2022m1a001@univ.local       Alpha Condé (M1-GES-A)        │
+  │  Mot de passe  : password (tous)                                            │
+  └─────────────────────────────────────────────────────────────────────────────┘
+
+
+────────────────────────────────────────────────────────────────────────────────
+  MODULE 3 — AGENDA / CALENDRIER
+────────────────────────────────────────────────────────────────────────────────
+
+  Rôle          : cal_user
+  Email         : demo@chronosphere.local
+  Mot de passe  : password
+  Note          : Ce compte a aussi les rôles uni_teacher et proj_member
+
+
+────────────────────────────────────────────────────────────────────────────────
+  MODULE 4 — RÉSERVATIONS
+────────────────────────────────────────────────────────────────────────────────
+
+  ┌─ GESTIONNAIRE (book_manager) ──────────────────────────────────────────────┐
+  │  Email         : book.manager@test.local                                    │
+  │  Nom           : Resp. Booking                                              │
+  │  Mot de passe  : password                                                   │
+  └─────────────────────────────────────────────────────────────────────────────┘
+
+  ┌─ UTILISATEUR (book_user) ──────────────────────────────────────────────────┐
+  │  Email         : book.user@test.local                                       │
+  │  Nom           : Utilisateur Booking                                        │
+  │  Mot de passe  : password                                                   │
+  └─────────────────────────────────────────────────────────────────────────────┘
+
+
+────────────────────────────────────────────────────────────────────────────────
+  MODULE 5 — PROJETS / GANTT
+────────────────────────────────────────────────────────────────────────────────
+
+  ┌─ CHEF DE PROJET (proj_manager) ────────────────────────────────────────────┐
+  │  Email         : proj.manager@test.local                                    │
+  │  Nom           : Chef Projet                                                │
+  │  Mot de passe  : password                                                   │
+  └─────────────────────────────────────────────────────────────────────────────┘
+
+  ┌─ MEMBRE D'ÉQUIPE (proj_member) ────────────────────────────────────────────┐
+  │  Email         : proj.member@test.local                                     │
+  │  Nom           : Membre Equipe                                              │
+  │  Mot de passe  : password                                                   │
+  │                                                                             │
+  │  Email         : demo@chronosphere.local  (multi-rôles)                     │
+  └─────────────────────────────────────────────────────────────────────────────┘
+
+
+────────────────────────────────────────────────────────────────────────────────
+  NOTES
+────────────────────────────────────────────────────────────────────────────────
+
+  • URL locale     : http://localhost/chronosphere/public
+  • API base URL   : http://localhost/chronosphere/public/api
+  • Mot de passe   : password (universel pour tous les comptes de démo)
+
+  • Le rôle "responsable" est nouveau (Phase I). Un responsable ne voit que
+    les employés et les congés de son département. Il ne peut PAS accéder aux
+    pages Départements, Compétences, Horaires, ni aux exports.
+
+  • Pour tester le filtrage département : connectez-vous avec resp.credit
+    et allez sur /shifts/employees — seuls les employés de "Direction des
+    Crédits" apparaissent.
+
+================================================================================
