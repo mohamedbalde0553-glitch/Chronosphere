@@ -88,6 +88,14 @@ class WorkScheduleSeeder extends Seeder
             ],
         ];
 
+        // Désactiver les horaires existants du même département avant d'en créer de nouveaux
+        // (évite les conflits de chevauchement détectés dans la vue)
+        $deptCodes = array_column($schedules, 'dept_code');
+        $deptIds   = Department::whereIn('code', $deptCodes)->pluck('id');
+        WorkSchedule::whereIn('department_id', $deptIds)
+            ->where('is_active', true)
+            ->update(['is_active' => false]);
+
         $today = now()->toDateString();
         $end   = now()->addYear()->toDateString();
 
