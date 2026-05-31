@@ -16,6 +16,33 @@ class Employee extends Model
 
     protected $table = 'hr_employees';
 
+    /**
+     * Dès qu'une fiche employé est créée, activer automatiquement le compte user :
+     * - email_verified_at si null (sinon bloqué par le middleware 'verified')
+     * - rôle hr_employee si aucun rôle RH supérieur n'est déjà assigné
+     */
+    protected static function booted(): void
+    {
+        static::created(function (Employee $employee) {
+            $user = User::find($employee->user_id);
+            if (!$user) {
+                return;
+            }
+
+            if (!$user->email_verified_at) {
+                User::where('id', $user->id)->update(['email_verified_at' => now()]);
+            }
+
+            // N'assigne hr_employee que si aucun rôle plus élevé n'existe déjà
+            if (!$user->hasAnyRole(['super_admin', 'hr_manager', 'responsable', 'hr_employee'])) {
+                $role = \Spatie\Permission\Models\Role::firstOrCreate(
+                    ['name' => 'hr_employee', 'guard_name' => 'web']
+                );
+                $user->assignRole($role);
+            }
+        });
+    }
+
     protected $fillable = [
         'user_id', 'department_id', 'position_id', 'employee_code',
         'hire_date', 'contract_type', 'status', 'photo_url',
