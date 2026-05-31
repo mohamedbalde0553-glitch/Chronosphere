@@ -222,7 +222,7 @@
                                     {{ $leave->start_date->format('d/m/Y') }} → {{ $leave->end_date->format('d/m/Y') }}
                                 </p>
                             </div>
-                            <a href="{{ route('shifts.leaves.index') }}"
+                            <a href="{{ route('shifts.leaves.index', ['employee_id' => $leave->employee_id, 'status' => 'pending']) }}"
                                class="text-xs text-amber-600 dark:text-amber-400 hover:text-amber-700 font-medium shrink-0">Valider →</a>
                         </div>
                         @endforeach

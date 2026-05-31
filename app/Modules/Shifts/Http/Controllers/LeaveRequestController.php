@@ -16,10 +16,10 @@ class LeaveRequestController extends Controller
 {
     public function __construct(private readonly LeaveRequestService $leaveService) {}
 
-    public function index(): View
+    public function index(\Illuminate\Http\Request $request): View
     {
-        $user     = auth()->user();
-        $employee = Employee::where('user_id', $user->id)->first();
+        $user      = auth()->user();
+        $employee  = Employee::where('user_id', $user->id)->first();
         $deptScope = $this->getManagedDepartmentId($user, $employee);
 
         $query = LeaveRequest::with(['employee.user', 'validator'])->orderByDesc('created_at');
@@ -40,9 +40,30 @@ class LeaveRequestController extends Controller
                 ->get();
         }
 
-        $leaves = $query->paginate(20);
+        // Filtre par employé spécifique (depuis le dashboard "Valider →")
+        if ($request->filled('employee_id')) {
+            $query->where('employee_id', $request->employee_id);
+        }
 
-        return view('modules.shifts.leaves.index', compact('leaves', 'employees'));
+        // Recherche par nom d'employé
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->whereHas('employee.user', fn($q) => $q->where('name', 'like', "%{$search}%"));
+        }
+
+        // Filtre par statut
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        $leaves           = $query->paginate(20)->withQueryString();
+        $activeEmployeeId = $request->integer('employee_id') ?: null;
+        $searchQuery      = $request->input('search', '');
+        $statusFilter     = $request->input('status', '');
+
+        return view('modules.shifts.leaves.index', compact(
+            'leaves', 'employees', 'activeEmployeeId', 'searchQuery', 'statusFilter'
+        ));
     }
 
     public function store(StoreLeaveRequest $request): JsonResponse

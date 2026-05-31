@@ -3,16 +3,63 @@
 
     <div x-data="leavesApp()" @keydown.escape.window="closeModal()">
 
-        <div class="flex items-center justify-between mb-5">
+        <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
             <div>
                 <h2 class="text-lg font-bold text-gray-900 dark:text-white">Demandes de congés</h2>
                 <p class="text-sm text-gray-500 dark:text-gray-400">{{ $leaves->total() }} demande(s)</p>
             </div>
             <div class="flex gap-2">
                 <a href="{{ route('shifts.index') }}" class="px-3 py-2 text-sm text-gray-600 dark:text-gray-300 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700">← Retour</a>
+                @can('shifts.validate_leave')
                 <button @click="openCreate()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold rounded-lg">+ Nouvelle demande</button>
+                @endcan
             </div>
         </div>
+
+        {{-- Barre de recherche et filtres --}}
+        <form method="GET" action="{{ route('shifts.leaves.index') }}"
+              class="flex flex-wrap gap-3 mb-5 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 px-4 py-3">
+            <div class="flex-1 min-w-[180px]">
+                <input type="text" name="search" value="{{ $searchQuery }}"
+                       placeholder="Rechercher un employé…"
+                       class="w-full text-sm border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-400">
+            </div>
+            <select name="status"
+                    class="text-sm border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 dark:text-white rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-400">
+                <option value="">Tous les statuts</option>
+                <option value="pending"  @selected($statusFilter === 'pending') >En attente</option>
+                <option value="approved" @selected($statusFilter === 'approved')>Approuvé</option>
+                <option value="rejected" @selected($statusFilter === 'rejected')>Rejeté</option>
+            </select>
+            @if($activeEmployeeId)
+            <input type="hidden" name="employee_id" value="{{ $activeEmployeeId }}">
+            @endif
+            <button type="submit"
+                    class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold rounded-lg">
+                Rechercher
+            </button>
+            @if($searchQuery || $statusFilter || $activeEmployeeId)
+            <a href="{{ route('shifts.leaves.index') }}"
+               class="px-3 py-2 text-sm text-gray-500 dark:text-gray-400 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700">
+                ✕ Effacer
+            </a>
+            @endif
+        </form>
+
+        {{-- Bandeau employé pré-sélectionné (depuis le dashboard) --}}
+        @if($activeEmployeeId)
+        @php $emp = $employees->firstWhere('id', $activeEmployeeId); @endphp
+        @if($emp)
+        <div class="mb-4 flex items-center gap-2 px-4 py-2.5 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-xl text-sm">
+            <svg class="w-4 h-4 text-amber-500 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+            </svg>
+            <span class="font-medium text-amber-700 dark:text-amber-400">{{ $emp->user->name }}</span>
+            <span class="text-amber-600 dark:text-amber-300">— congés en attente de validation</span>
+            <a href="{{ route('shifts.leaves.index') }}" class="ml-auto text-xs text-amber-500 hover:text-amber-700 underline">Voir tous</a>
+        </div>
+        @endif
+        @endif
 
         <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
             <div class="overflow-x-auto">
@@ -39,7 +86,7 @@
                         $statusLabels = ['pending'=>'En attente','approved'=>'Approuvé','rejected'=>'Rejeté'];
                         $typeLabels   = ['conge_paye'=>'Congé payé','rtt'=>'RTT','maladie'=>'Maladie','sans_solde'=>'Sans solde','autre'=>'Autre'];
                     @endphp
-                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 {{ $activeEmployeeId && $leave->employee_id == $activeEmployeeId ? 'bg-amber-50 dark:bg-amber-900/10 ring-1 ring-amber-200 dark:ring-amber-700' : '' }}">
                         <td class="px-4 py-3">
                             <div class="font-medium text-gray-900 dark:text-white">{{ $leave->employee->user->name }}</div>
                         </td>
