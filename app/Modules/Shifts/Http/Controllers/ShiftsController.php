@@ -19,8 +19,17 @@ class ShiftsController extends Controller
         $user     = auth()->user();
         $employee = Employee::where('user_id', $user->id)->first();
 
-        // hr_employee : tableau de bord personnel uniquement
-        if ($user->hasRole('hr_employee') && $employee) {
+        // hr_employee : tableau de bord personnel (avec ou sans fiche)
+        if ($user->hasRole('hr_employee')) {
+            if (!$employee) {
+                // Compte hr_employee sans fiche employé — dashboard vide sécurisé
+                return view('modules.shifts.employee_dashboard', [
+                    'employee'       => null,
+                    'stats'          => ['shifts_week' => 0, 'shifts_month' => 0, 'leaves_pending' => 0, 'leaves_approved' => 0],
+                    'upcomingShifts' => collect(),
+                    'myLeaves'       => collect(),
+                ]);
+            }
             $startWeek = now()->startOfWeek()->toDateTimeString();
             $endWeek   = now()->endOfWeek()->toDateTimeString();
 
@@ -86,9 +95,13 @@ class ShiftsController extends Controller
         $user     = auth()->user();
         $employee = Employee::where('user_id', $user->id)->first();
 
-        $departments = Department::orderBy('name')->get();
-        $employees   = Employee::with(['user', 'department'])->active()->orderBy('id')->get();
-        $shiftTypes  = ShiftType::orderBy('name')->get();
+        $departments = Department::orderBy('name')->get(['id', 'name']);
+        $employees   = Employee::active()
+                           ->select('id', 'user_id', 'department_id')
+                           ->with(['user:id,name', 'department:id,name'])
+                           ->orderBy('id')
+                           ->get();
+        $shiftTypes  = ShiftType::orderBy('name')->get(['id', 'name', 'color']);
 
         $filterType = $request->get('by', 'department');
         $filterId   = $request->get('id', $departments->first()?->id);
@@ -115,7 +128,10 @@ class ShiftsController extends Controller
         $filterId   = $request->query('id');
 
         // Sécurité : hr_employee ne peut voir QUE ses propres shifts
-        if ($user->hasRole('hr_employee') && $employee) {
+        if ($user->hasRole('hr_employee')) {
+            if (!$employee) {
+                return response()->json([]); // pas de fiche = aucun event
+            }
             $filterType = 'employee';
             $filterId   = $employee->id;
         }

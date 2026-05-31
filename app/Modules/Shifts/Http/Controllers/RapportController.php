@@ -30,6 +30,8 @@ class RapportController extends Controller
 
     public function exportPdf(Request $request)
     {
+        ini_set('memory_limit', '256M');
+
         $period  = $request->input('period', 'week');
         $deptId  = $request->input('department_id');
         [$start, $end] = $this->resolvePeriod($period, $request);
@@ -38,7 +40,9 @@ class RapportController extends Controller
         $shifts = $this->buildShiftRows($start, $end, $deptId);
 
         $pdf = Pdf::loadView('modules.shifts.rapports.pdf', compact('stats', 'shifts', 'start', 'end', 'period'))
-                  ->setPaper('a4', 'landscape');
+                  ->setPaper('a4', 'landscape')
+                  ->setOption('isPhpEnabled', false)
+                  ->setOption('isRemoteEnabled', false);
 
         $filename = 'rapport_rh_' . $start->format('Ymd') . '_' . $end->format('Ymd') . '.pdf';
         return $pdf->download($filename);
