@@ -186,7 +186,7 @@ function leaveForm() {
         loading: false,
         error: '',
         success: false,
-        form: { type: 'conge_paye', start_date: '', end_date: '', reason: '' },
+        form: { type: 'conge_paye', start_date: '', end_date: '', reason: '', employee_id: {{ $employee?->id ?? 'null' }} },
         async submit() {
             this.error = ''; this.success = false; this.loading = true;
             try {

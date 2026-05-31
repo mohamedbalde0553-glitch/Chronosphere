@@ -95,21 +95,28 @@ class ShiftsController extends Controller
         $user     = auth()->user();
         $employee = Employee::where('user_id', $user->id)->first();
 
-        $departments = Department::orderBy('name')->get(['id', 'name']);
-        $employees   = Employee::active()
-                           ->select('id', 'user_id', 'department_id')
-                           ->with(['user:id,name', 'department:id,name'])
-                           ->orderBy('id')
-                           ->get();
-        $shiftTypes  = ShiftType::orderBy('name')->get(['id', 'name', 'color']);
+        $shiftTypes = ShiftType::orderBy('name')->get(['id', 'name', 'color']);
 
-        $filterType = $request->get('by', 'department');
-        $filterId   = $request->get('id', $departments->first()?->id);
-
-        // hr_employee : force sur son propre planning
-        if ($user->hasRole('hr_employee') && $employee) {
-            $filterType = 'employee';
-            $filterId   = $employee->id;
+        // hr_employee : vue personnelle uniquement — pas besoin de charger tous les employés
+        if ($user->hasRole('hr_employee')) {
+            $departments = collect();
+            $employees   = $employee
+                ? Employee::where('id', $employee->id)
+                    ->select('id', 'user_id', 'department_id')
+                    ->with(['user:id,name', 'department:id,name'])
+                    ->get()
+                : collect();
+            $filterType  = 'employee';
+            $filterId    = $employee?->id;
+        } else {
+            $departments = Department::orderBy('name')->get(['id', 'name']);
+            $employees   = Employee::active()
+                               ->select('id', 'user_id', 'department_id')
+                               ->with(['user:id,name', 'department:id,name'])
+                               ->orderBy('id')
+                               ->get();
+            $filterType  = $request->get('by', 'department');
+            $filterId    = $request->get('id', $departments->first()?->id);
         }
 
         return view('modules.shifts.planning', compact(

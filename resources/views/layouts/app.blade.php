@@ -203,7 +203,7 @@
                             <p class="px-4 py-6 text-sm text-center text-gray-400 dark:text-gray-500">Aucune notification</p>
                         </template>
                         <template x-for="n in notifications" :key="n.id">
-                            <a :href="n.url || '#'" @click="markOne(n.id)"
+                            <a href="#" @click.prevent="navigate(n)"
                                class="flex items-start gap-3 px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
                                :class="n.read ? 'opacity-60' : ''">
                                 <span class="mt-0.5 w-2 h-2 rounded-full shrink-0"
@@ -344,20 +344,29 @@ function notifBell() {
             this.open = !this.open;
             if (this.open) this.load();
         },
-        markOne(id) {
-            const n = this.notifications.find(x => x.id === id);
-            if (n && !n.read) {
+        async navigate(n) {
+            // Marquer comme lu d'abord, puis naviguer
+            if (!n.read) {
                 n.read = true;
                 this.unread = Math.max(0, this.unread - 1);
-                fetch('{{ route('notifications.read') }}', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content,
-                    },
-                    body: JSON.stringify({ id }),
-                });
+                try {
+                    await fetch('{{ route('notifications.read') }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content,
+                        },
+                        body: JSON.stringify({ id: n.id }),
+                    });
+                } catch (_) {}
             }
+            this.open = false;
+            if (n.url) window.location.href = n.url;
+        },
+        markOne(id) {
+            const n = this.notifications.find(x => x.id === id);
+            if (n) this.navigate(n);
         },
         markAll() {
             this.notifications.forEach(n => n.read = true);
