@@ -376,13 +376,7 @@ function notifBell() {
                 } catch (_) {}
             }
             this.open = false;
-            // Utiliser le chemin relatif pour éviter tout problème avec l'URL absolue
-            try {
-                const path = new URL(n.url).pathname;
-                window.location.href = path;
-            } catch (_) {
-                window.location.href = n.url;
-            }
+            window.location.href = n.url;
         },
         markOne(id) {
             const n = this.notifications.find(x => x.id === id);
