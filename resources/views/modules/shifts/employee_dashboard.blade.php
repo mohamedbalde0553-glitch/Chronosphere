@@ -1,6 +1,22 @@
+@php $authUser = auth()->user(); @endphp
 <x-app-layout>
-    <x-slot name="title">Mon espace — {{ $employee->user->name }}</x-slot>
+    <x-slot name="title">Mon espace — {{ $employee?->user?->name ?? $authUser->name }}</x-slot>
 
+    @if(!$employee)
+    {{-- Compte hr_employee sans fiche employée --}}
+    <div class="flex flex-col items-center justify-center py-16 text-center">
+        <div class="w-20 h-20 rounded-2xl bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center mb-4">
+            <svg class="w-10 h-10 text-amber-500" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/>
+            </svg>
+        </div>
+        <h2 class="text-lg font-bold text-gray-900 dark:text-white mb-2">Bienvenue, {{ $authUser->name }}</h2>
+        <p class="text-sm text-gray-500 dark:text-gray-400 max-w-sm">
+            Votre compte n'est pas encore rattaché à une fiche employé.<br>
+            Contactez votre responsable RH pour qu'il complète votre profil.
+        </p>
+    </div>
+    @else
     {{-- En-tête personnel --}}
     <div class="flex items-center gap-4 mb-6">
         <div class="w-14 h-14 rounded-2xl bg-emerald-100 dark:bg-emerald-900/40 flex items-center justify-center shrink-0">
@@ -159,6 +175,7 @@
             @endif
         </div>
     </div>
+    @endif {{-- fin @else ($employee existe) --}}
 </x-app-layout>
 
 @push('scripts')
